@@ -6,11 +6,6 @@ import Script from "next/script";
 const GA_MEASUREMENT_ID = "G-8S0VHD5V8Z";
 
 export default function Analytics() {
-  if (GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
-    // Don't load analytics if not configured
-    return null;
-  }
-
   return (
     <>
       <Script
