@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, viewportSettings } from "@/lib/animations";
 import { useI18n } from "@/lib/i18n";
+import { trackGemsClick } from "./Analytics";
 
 const GEMS_URL =
   "https://gemini.google.com/gem/15BXEgs3nCiF4ZO9Vv6M1lkNvCgj6apBN?usp=sharing";
@@ -53,6 +54,7 @@ export default function Stratege() {
           href={GEMS_URL}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackGemsClick}
           className="btn-ghost inline-flex items-center gap-3 group"
         >
           <span>{t.stratege.cta}</span>

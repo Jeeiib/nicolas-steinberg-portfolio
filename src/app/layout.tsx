@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import { I18nProvider } from "@/lib/i18n";
+import Analytics from "@/components/Analytics";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -48,10 +49,10 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Nicolas Steinberg - Hospitality & Guest Experience Leader",
+        alt: "NS - Nicolas Steinberg",
       },
     ],
   },
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
     description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
-    images: ["/images/og-image.jpg"],
+    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
@@ -87,6 +88,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${dmSans.variable} antialiased`}
       >
+        <Analytics />
         <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
