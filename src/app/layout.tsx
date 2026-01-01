@@ -47,20 +47,11 @@ export const metadata: Metadata = {
     siteName: "Nicolas Steinberg",
     type: "website",
     locale: "fr_FR",
-    images: [
-      {
-        url: "/og-image.svg",
-        width: 1200,
-        height: 630,
-        alt: "NS - Nicolas Steinberg",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
     description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
-    images: ["/og-image.svg"],
   },
   robots: {
     index: true,
