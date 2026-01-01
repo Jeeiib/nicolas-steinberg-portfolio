@@ -2,8 +2,8 @@
 
 import Script from "next/script";
 
-// Replace with Nicolas's GA4 Measurement ID
-const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+// Nicolas's GA4 Measurement ID
+const GA_MEASUREMENT_ID = "G-8S0VHD5V8Z";
 
 export default function Analytics() {
   if (GA_MEASUREMENT_ID === "G-XXXXXXXXXX") {
