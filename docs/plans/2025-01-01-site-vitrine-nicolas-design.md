@@ -35,6 +35,7 @@ src/
 │   ├── Hero.tsx            # Section 100vh
 │   ├── Philosophy.tsx      # Les 3 principes
 │   ├── Expertise.tsx       # Domaines stratégiques
+│   ├── Stratege.tsx        # Section outil IA Gems
 │   ├── Portfolio.tsx       # Réalisations chiffrées
 │   ├── Contact.tsx         # Email + LinkedIn
 │   └── Footer.tsx          # Copyright minimal
@@ -83,7 +84,7 @@ src/
 - Sticky, ultra-fin
 - Glassmorphism : `rgba(13, 13, 13, 0.7)` + `backdrop-filter: blur(12px)`
 - Border bottom : `1px solid rgba(184, 134, 11, 0.1)` (laiton subtil)
-- Menu : Philosophie — Expertise — Réalisations — Contact
+- Menu : Philosophie — Expertise — Stratège — Réalisations — Contact
 - Navigation par ancres avec smooth scroll
 
 ---
@@ -128,7 +129,33 @@ src/
 
 **Layout** : 3 colonnes desktop / empilées mobile
 
-### 4. Réalisations
+### 4. Stratège (Outil IA)
+
+**Ancre** : `#stratege`
+
+**Design spécifique** : Fond Noir Obsidienne (légère rupture visuelle)
+
+**Sur-titre** (couleur Laiton) : INGÉNIERIE NUMÉRIQUE
+
+**Titre** : STRATÈGE
+
+**Description** : *"Modélisation exclusive de mes méthodes d'analyse et standards opérationnels. J'ai condensé mon expertise au sein d'un Gems personnalisé pour offrir un accès direct à ma vision stratégique et à mes recommandations, de manière instantanée."*
+
+**Bouton CTA** :
+- Texte : ACCÉDER AU GEMS "STRATÈGE" (VIA GEMINI)
+- Style : Ghost Button (contour 1px Laiton brossé)
+- Icône : Flèche de sortie ↗ (indique lien externe)
+- Action : Ouvre dans nouvel onglet → `https://gemini.google.com/gem/15BXEgs3nCiF4ZO9Vv6M1lkNvCgj6apBN?usp=sharing`
+
+**Note de bas de section** (typographie très petite, paper-muted) :
+*"Outil propriétaire développé sur l'interface Google Gemini. Nécessite un compte Google."*
+
+**Contraintes** :
+- Aucun logo Google coloré — tout monochrome (Blanc/Noir/Laiton)
+- Design qui reflète autorité et technologie sans paraître "gadget"
+- Responsive : texte percutant + bouton cliquable sur mobile
+
+### 5. Réalisations
 
 **Titre** : Performances
 
@@ -147,7 +174,7 @@ src/
 - Durée : 3 secondes, déclenchée au scroll
 - Légende : *"Passage du 1200ème rang au Top 100 des établissements de référence."*
 
-### 5. Contact
+### 6. Contact
 
 **Titre** : Discrétion & Collaboration
 
@@ -159,7 +186,7 @@ src/
 
 **Style boutons** : Ghost (bordure fine, fond transparent)
 
-### 6. Footer
+### 7. Footer
 
 ```
 © 2025 Nicolas Steinberg. Tous droits réservés.
