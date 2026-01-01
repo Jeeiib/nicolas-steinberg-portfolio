@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+:root {
+  /* Palette - Old Money / Quiet Luxury */
+  --obsidian: #0D0D0D;
+  --emerald-dark: #1B4332;
+  --brass: #B8860B;
+  --brass-light: rgba(184, 134, 11, 0.1);
+  --paper: #FAF9F6;
+  --paper-muted: #A8A8A0;
+  --anthracite: #3D3D3D;
+
+  /* Semantic */
+  --background: var(--obsidian);
+  --foreground: var(--paper);
+  --foreground-muted: var(--paper-muted);
+  --accent: var(--brass);
+  --accent-subtle: var(--brass-light);
+
+  /* Spacing */
+  --section-gap: 200px;
+  --section-gap-mobile: 120px;
+  --section-padding-x: 80px;
+  --section-padding-x-mobile: 24px;
+  --max-width: 1200px;
+}
+
+@theme inline {
+  --color-obsidian: var(--obsidian);
+  --color-emerald-dark: var(--emerald-dark);
+  --color-brass: var(--brass);
+  --color-brass-light: var(--brass-light);
+  --color-paper: var(--paper);
+  --color-paper-muted: var(--paper-muted);
+  --color-anthracite: var(--anthracite);
+
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-dm-sans);
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Typography utilities */
+.font-serif {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.font-sans {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* Section spacing */
+.section {
+  padding-left: var(--section-padding-x);
+  padding-right: var(--section-padding-x);
+  padding-top: var(--section-gap);
+  padding-bottom: var(--section-gap);
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .section {
+    padding-left: var(--section-padding-x-mobile);
+    padding-right: var(--section-padding-x-mobile);
+    padding-top: var(--section-gap-mobile);
+    padding-bottom: var(--section-gap-mobile);
+  }
+}
+
+/* Container */
+.container-narrow {
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Brass line separator */
+.brass-line {
+  height: 1px;
+  background: var(--brass-light);
+  width: 100%;
+}
+
+/* Ghost button style */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  border: 1px solid var(--brass);
+  color: var(--paper);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(184, 134, 11, 0.1);
+}
+
+/* Selection */
+::selection {
+  background: var(--brass);
+  color: var(--obsidian);
+}
+
+/* Scrollbar (subtle) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--obsidian);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--anthracite);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--paper-muted);
+}
