@@ -52,29 +52,25 @@ export default function Portfolio() {
           <div className="max-w-3xl mx-auto">
             {/* Progress bar container */}
             <div className="relative h-px bg-brass-light mb-8">
-              {/* Animated progress */}
+              {/* Animated progress bar with dot at the end */}
               <motion.div
-                className="absolute top-0 left-0 h-full bg-brass"
-                initial={{ width: "0%" }}
-                animate={isInView ? { width: "92%" } : { width: "0%" }}
+                className="absolute top-0 left-0 h-full w-[92%] origin-left flex items-center"
+                initial={{ scaleX: 0 }}
+                animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
                 transition={{
                   duration: 3,
-                  ease: "easeInOut",
+                  ease: [0.16, 1, 0.3, 1],
                   delay: 0.3,
                 }}
-              />
-
-              {/* Animated dot */}
-              <motion.div
-                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-brass"
-                initial={{ left: "0%" }}
-                animate={isInView ? { left: "92%" } : { left: "0%" }}
-                transition={{
-                  duration: 3,
-                  ease: "easeInOut",
-                  delay: 0.3,
-                }}
-              />
+              >
+                {/* The bar */}
+                <div className="absolute inset-0 bg-brass" />
+                {/* The dot at the end */}
+                <div
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 rounded-full bg-brass"
+                  style={{ transformOrigin: 'center' }}
+                />
+              </motion.div>
             </div>
 
             {/* Labels */}

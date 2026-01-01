@@ -40,7 +40,7 @@
 
 /* Base styles */
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior géré par Tailwind class scroll-smooth sur le html */
 }
 
 body {

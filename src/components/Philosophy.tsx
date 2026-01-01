@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   fadeInUp,
   staggerContainer,
@@ -31,13 +32,26 @@ const principles = [
 
 export default function Philosophy() {
   return (
-    <section id="philosophie" className="section">
+    <section id="philosophie" className="section relative overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/citation-background.webp"
+          alt=""
+          fill
+          className="object-cover"
+          quality={90}
+        />
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-obsidian/85" />
+      </div>
+
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={viewportSettings}
-        className="container-narrow"
+        className="container-narrow relative z-10"
       >
         {/* Section title */}
         <motion.h2

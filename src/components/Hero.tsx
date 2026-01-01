@@ -28,19 +28,13 @@ export default function Hero() {
           variants={fadeIn}
           className="relative w-40 h-40 md:w-52 md:h-52 mb-10 rounded-full overflow-hidden border border-brass-light"
         >
-          {/* Placeholder - Replace with actual image */}
-          <div className="absolute inset-0 bg-gradient-to-br from-anthracite to-obsidian flex items-center justify-center">
-            <span className="font-serif text-4xl md:text-5xl text-paper-muted">NS</span>
-          </div>
-          {/* Uncomment when image is available:
           <Image
-            src="/images/nicolas-portrait.jpg"
+            src="/images/nicolas-portrait.webp"
             alt="Nicolas Steinberg"
             fill
             className="object-cover"
             priority
           />
-          */}
         </motion.div>
 
         {/* Name */}
