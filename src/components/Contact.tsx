@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, viewportSettings } from "@/lib/animations";
 import { useI18n } from "@/lib/i18n";
+import { trackEmailClick, trackLinkedInClick } from "./Analytics";
 
 const EMAIL = "n@nicolassteinberg.com";
 const LINKEDIN_URL = "https://linkedin.com/in/nicolas-steinberg-pro";
@@ -45,6 +46,7 @@ export default function Contact() {
           {/* Email button */}
           <a
             href={`mailto:${EMAIL}`}
+            onClick={trackEmailClick}
             className="btn-ghost w-full sm:w-auto justify-center"
           >
             <svg
@@ -68,6 +70,7 @@ export default function Contact() {
             href={LINKEDIN_URL}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackLinkedInClick}
             className="btn-ghost w-full sm:w-auto justify-center"
           >
             <svg

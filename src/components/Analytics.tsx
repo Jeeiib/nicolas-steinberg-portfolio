@@ -24,12 +24,32 @@ export default function Analytics() {
   );
 }
 
-// Function to track Gems click - call this from Stratege component
+// Function to track Gems click
 export function trackGemsClick() {
   if (typeof window !== "undefined" && "gtag" in window) {
     (window as typeof window & { gtag: (...args: unknown[]) => void }).gtag("event", "gems_click", {
       event_category: "engagement",
       event_label: "Stratege Gems Button",
+    });
+  }
+}
+
+// Function to track LinkedIn click
+export function trackLinkedInClick() {
+  if (typeof window !== "undefined" && "gtag" in window) {
+    (window as typeof window & { gtag: (...args: unknown[]) => void }).gtag("event", "linkedin_click", {
+      event_category: "contact",
+      event_label: "LinkedIn Profile Button",
+    });
+  }
+}
+
+// Function to track Email click
+export function trackEmailClick() {
+  if (typeof window !== "undefined" && "gtag" in window) {
+    (window as typeof window & { gtag: (...args: unknown[]) => void }).gtag("event", "email_click", {
+      event_category: "contact",
+      event_label: "Email Contact Button",
     });
   }
 }
