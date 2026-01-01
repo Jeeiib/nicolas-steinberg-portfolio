@@ -2,26 +2,29 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, viewportSettings } from "@/lib/animations";
-
-const expertiseAreas = [
-  {
-    title: "Standards d'Excellence",
-    description:
-      "Définition et implémentation de protocoles opérationnels de haut niveau. Formation aux pratiques et codes du luxe international.",
-  },
-  {
-    title: "Ingénierie de la Réputation",
-    description:
-      "Pilotage stratégique de l'image de marque et optimisation chirurgicale des classements et de la e-réputation.",
-  },
-  {
-    title: "Management & Leadership",
-    description:
-      "Direction d'équipes en environnements complexes et haute gestion de la performance opérationnelle.",
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function Expertise() {
+  const { t } = useI18n();
+
+  const expertiseAreas = [
+    {
+      id: "excellence",
+      title: t.expertise.area1Title,
+      description: t.expertise.area1Desc,
+    },
+    {
+      id: "reputation",
+      title: t.expertise.area2Title,
+      description: t.expertise.area2Desc,
+    },
+    {
+      id: "leadership",
+      title: t.expertise.area3Title,
+      description: t.expertise.area3Desc,
+    },
+  ];
+
   return (
     <section id="expertise" className="section">
       <motion.div
@@ -36,14 +39,14 @@ export default function Expertise() {
           variants={fadeInUp}
           className="font-serif text-3xl md:text-4xl lg:text-5xl text-paper mb-16 md:mb-24 text-center"
         >
-          Expertise Stratégique
+          {t.expertise.title}
         </motion.h2>
 
         {/* Grid of expertise areas */}
         <div className="grid md:grid-cols-3 gap-12 md:gap-8 lg:gap-12">
           {expertiseAreas.map((area, index) => (
             <motion.div
-              key={area.title}
+              key={area.id}
               variants={fadeInUp}
               className="group text-center md:text-left"
             >

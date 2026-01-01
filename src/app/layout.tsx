@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
+import { I18nProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -14,24 +15,65 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+const siteUrl = "https://nicolassteinberg.com";
+
 export const metadata: Metadata = {
-  title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
+    template: "%s | Nicolas Steinberg",
+  },
   description:
-    "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible. Guest Experience Leader dans l'hôtellerie de luxe 5 étoiles.",
+    "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible. Guest Experience Leader dans l'hôtellerie de luxe 5 étoiles à Paris.",
   keywords: [
+    "Nicolas Steinberg",
     "hospitality",
     "luxury hotels",
     "guest experience",
     "hotel management",
     "Paris",
     "5 étoiles",
+    "hôtellerie de luxe",
+    "expérience client",
+    "TripAdvisor",
   ],
   authors: [{ name: "Nicolas Steinberg" }],
+  creator: "Nicolas Steinberg",
   openGraph: {
     title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
     description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
+    url: siteUrl,
+    siteName: "Nicolas Steinberg",
     type: "website",
     locale: "fr_FR",
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Nicolas Steinberg - Hospitality & Guest Experience Leader",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
+    description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
+    images: ["/images/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: siteUrl,
   },
 };
 
@@ -45,7 +87,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${dmSans.variable} antialiased`}
       >
-        {children}
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );

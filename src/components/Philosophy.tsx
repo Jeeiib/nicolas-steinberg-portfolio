@@ -1,64 +1,50 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import {
   fadeInUp,
   staggerContainer,
   lineGrow,
   viewportSettings,
 } from "@/lib/animations";
-
-const principles = [
-  {
-    number: "I",
-    title: "On ne présume jamais.",
-    description:
-      "L'anticipation est la clé de l'excellence. Dans l'hôtellerie de luxe, le silence de l'invité n'est pas une satisfaction, c'est une donnée à interpréter.",
-  },
-  {
-    number: "II",
-    title: "Oui ou Non.",
-    description:
-      "La clarté est une marque de respect. L'entre-deux est une perte de temps opérationnelle. Décider vite, agir avec justesse.",
-  },
-  {
-    number: "III",
-    title: "Rien n'est grave.",
-    description:
-      "Le sang-froid est le socle de l'autorité. Maîtriser l'imprévisible avec distance pour garantir la continuité de l'expérience.",
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function Philosophy() {
-  return (
-    <section id="philosophie" className="section relative overflow-hidden">
-      {/* Background image */}
-      <div className="absolute inset-0">
-        <Image
-          src="/images/citation-background.webp"
-          alt=""
-          fill
-          className="object-cover"
-          quality={90}
-        />
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-obsidian/85" />
-      </div>
+  const { t } = useI18n();
 
+  const principles = [
+    {
+      number: "I",
+      title: t.philosophy.principle1Title,
+      description: t.philosophy.principle1Desc,
+    },
+    {
+      number: "II",
+      title: t.philosophy.principle2Title,
+      description: t.philosophy.principle2Desc,
+    },
+    {
+      number: "III",
+      title: t.philosophy.principle3Title,
+      description: t.philosophy.principle3Desc,
+    },
+  ];
+
+  return (
+    <section id="philosophie" className="section">
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         whileInView="visible"
         viewport={viewportSettings}
-        className="container-narrow relative z-10"
+        className="container-narrow"
       >
         {/* Section title */}
         <motion.h2
           variants={fadeInUp}
           className="font-serif text-3xl md:text-4xl lg:text-5xl text-paper mb-16 md:mb-24 text-center"
         >
-          Principes Directeurs
+          {t.philosophy.title}
         </motion.h2>
 
         {/* Principles list */}
@@ -105,8 +91,7 @@ export default function Philosophy() {
           className="mt-16 md:mt-24 text-center"
         >
           <p className="font-serif text-xl md:text-2xl lg:text-3xl text-paper italic">
-            &ldquo;Le luxe n&apos;est pas une question de moyens,
-            <br className="hidden md:block" /> mais de standards.&rdquo;
+            &ldquo;{t.philosophy.quote}&rdquo;
           </p>
         </motion.blockquote>
       </motion.div>

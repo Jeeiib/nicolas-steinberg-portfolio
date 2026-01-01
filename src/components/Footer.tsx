@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/animations";
+import { useI18n } from "@/lib/i18n";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useI18n();
 
   return (
     <motion.footer
@@ -16,7 +18,7 @@ export default function Footer() {
     >
       <div className="container-narrow text-center">
         <p className="text-sm text-paper-muted">
-          © {currentYear} Nicolas Steinberg. Tous droits réservés.
+          © {currentYear} Nicolas Steinberg. {t.footer.rights}
         </p>
       </div>
     </motion.footer>

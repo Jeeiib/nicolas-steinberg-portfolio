@@ -41,6 +41,9 @@
 /* Base styles */
 html {
   /* scroll-behavior géré par Tailwind class scroll-smooth sur le html */
+  background: var(--obsidian);
+  /* Prevent overscroll bounce that reveals white background */
+  overscroll-behavior: none;
 }
 
 body {
@@ -50,6 +53,11 @@ body {
   font-size: 18px;
   line-height: 1.6;
   overflow-x: hidden;
+  /* Prevent overscroll bounce */
+  overscroll-behavior: none;
+  /* Prevent subpixel rendering gaps during fast scroll */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 /* Typography utilities */
@@ -67,6 +75,8 @@ body {
   padding-right: var(--section-padding-x);
   padding-top: var(--section-gap);
   padding-bottom: var(--section-gap);
+  /* Offset for fixed header when scrolling via nav links */
+  scroll-margin-top: 80px;
 }
 
 @media (max-width: 768px) {

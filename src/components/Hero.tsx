@@ -3,8 +3,11 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { fadeIn, fadeInUp, staggerContainer } from "@/lib/animations";
+import { useI18n } from "@/lib/i18n";
 
 export default function Hero() {
+  const { t } = useI18n();
+
   const scrollToContent = () => {
     const philosophie = document.querySelector("#philosophie");
     if (philosophie) {
@@ -50,9 +53,9 @@ export default function Hero() {
           variants={fadeInUp}
           className="max-w-xl text-base md:text-lg text-paper-muted leading-relaxed tracking-wide"
         >
-          L&apos;art de la précision. L&apos;exigence du détail.
+          {t.hero.tagline}
           <br className="hidden md:block" />{" "}
-          La maîtrise de l&apos;invisible.
+          {t.hero.tagline2}
         </motion.p>
       </motion.div>
 
@@ -63,7 +66,7 @@ export default function Hero() {
         transition={{ delay: 1.5, duration: 0.8 }}
         onClick={scrollToContent}
         className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer group"
-        aria-label="Défiler vers le contenu"
+        aria-label={t.hero.scrollLabel}
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}

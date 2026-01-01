@@ -2,11 +2,14 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer, viewportSettings } from "@/lib/animations";
+import { useI18n } from "@/lib/i18n";
 
 const GEMS_URL =
   "https://gemini.google.com/gem/15BXEgs3nCiF4ZO9Vv6M1lkNvCgj6apBN?usp=sharing";
 
 export default function Stratege() {
+  const { t } = useI18n();
+
   return (
     <section id="stratege" className="section bg-obsidian">
       <motion.div
@@ -21,7 +24,7 @@ export default function Stratege() {
           variants={fadeInUp}
           className="inline-block text-brass text-xs md:text-sm tracking-[0.3em] uppercase mb-6"
         >
-          Ingénierie Numérique
+          {t.stratege.surtitle}
         </motion.span>
 
         {/* Title */}
@@ -29,7 +32,7 @@ export default function Stratege() {
           variants={fadeInUp}
           className="font-serif text-4xl md:text-5xl lg:text-6xl text-paper mb-8"
         >
-          STRATÈGE
+          {t.stratege.title}
         </motion.h2>
 
         {/* Description */}
@@ -37,10 +40,11 @@ export default function Stratege() {
           variants={fadeInUp}
           className="max-w-2xl mx-auto text-paper-muted leading-relaxed mb-12"
         >
-          Modélisation exclusive de mes méthodes d&apos;analyse et standards
-          opérationnels. J&apos;ai condensé mon expertise au sein d&apos;un Gems
-          personnalisé pour offrir un accès direct à ma vision stratégique et à
-          mes recommandations, de manière instantanée.
+          {t.stratege.description}
+          <span className="text-paper">{t.stratege.gemsLabel}</span>
+          {t.stratege.poweredBy}
+          <span className="text-paper font-medium">{t.stratege.geminiLabel}</span>
+          {t.stratege.descriptionEnd}
         </motion.p>
 
         {/* CTA Button */}
@@ -51,7 +55,7 @@ export default function Stratege() {
           rel="noopener noreferrer"
           className="btn-ghost inline-flex items-center gap-3 group"
         >
-          <span>Accéder au Gems &ldquo;Stratège&rdquo;</span>
+          <span>{t.stratege.cta}</span>
           <svg
             className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
             fill="none"
@@ -72,8 +76,9 @@ export default function Stratege() {
           variants={fadeInUp}
           className="mt-8 text-xs text-paper-muted/60"
         >
-          Outil propriétaire développé sur l&apos;interface Google Gemini.
-          Nécessite un compte Google.
+          {t.stratege.disclaimer}
+          <br />
+          {t.stratege.disclaimer2}
         </motion.p>
       </motion.div>
     </section>
