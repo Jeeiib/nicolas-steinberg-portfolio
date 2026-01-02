@@ -34,7 +34,7 @@ const dictionaries = {
       title: "Principes Directeurs",
       principle1Title: "On ne présume jamais.",
       principle1Desc:
-        "L'anticipation est la clé de l'excellence. Dans l'hôtellerie de luxe, le silence de l'invité n'est pas une satisfaction, c'est une donnée à interpréter.",
+        "L'interprétation est le poison de la relation humaine. Tant que l'on ne sait pas, on ne juge pas. On ne fantasme pas une intention, on ne devine pas un besoin : on se renseigne. Aller chercher l'information factuelle est le fondement de la justesse émotionnelle et de l'excellence opérationnelle.",
       principle2Title: "Oui ou Non.",
       principle2Desc:
         "La clarté est une marque de respect. L'entre-deux est une perte de temps opérationnelle. Décider vite, agir avec justesse.",
@@ -113,7 +113,7 @@ const dictionaries = {
       title: "Guiding Principles",
       principle1Title: "Never presume.",
       principle1Desc:
-        "Anticipation is the key to excellence. In luxury hospitality, a guest's silence is not satisfaction—it's data to interpret.",
+        "Interpretation is the poison of human relationships. As long as we do not know, we do not judge. We do not fantasize an intention, we do not guess a need: we inquire. Seeking factual information is the foundation of emotional accuracy and operational excellence.",
       principle2Title: "Yes or No.",
       principle2Desc:
         "Clarity is a mark of respect. Indecision is operational waste. Decide quickly, act with precision.",
