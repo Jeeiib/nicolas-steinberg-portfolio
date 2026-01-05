@@ -346,7 +346,7 @@ export default function ChatInterface() {
                 <span className="font-serif text-brass text-lg">S</span>
               </div>
               <div>
-                <h3 className="text-paper font-medium text-sm">Steinberg Analytics</h3>
+                <h3 className="text-paper font-medium text-sm">Steinberg Hospitality Analytics</h3>
                 <span className="text-paper-muted text-xs">
                   {locale === "en" ? "Strategic Analyst" : "Analyste Stratégique"}
                 </span>
