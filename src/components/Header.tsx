@@ -7,17 +7,19 @@ import { useI18n } from "@/lib/i18n";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
   const { t, locale, toggleLocale } = useI18n();
 
-  // Navigation items with translations
+  // Navigation items - NEW ORDER: Philosophie > Expertise > Performance > Steinberg Hospit > Contact
   const navItems = [
     { label: t.nav.philosophy, href: "#philosophie" },
     { label: t.nav.expertise, href: "#expertise" },
-    { label: t.nav.strategist, href: "#stratege" },
-    { label: t.nav.achievements, href: "#realisations" },
+    { label: t.nav.performance, href: "#performance" },
+    { label: t.nav.analytics, href: "#steinberg-hospitality-analytics" },
     { label: t.nav.contact, href: "#contact" },
   ];
 
+  // Scroll detection
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -27,12 +29,54 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // ScrollSpy - Detect active section
+  useEffect(() => {
+    const sectionIds = navItems.map((item) => item.href.replace("#", ""));
+
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: 0,
+    };
+
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Offset for fixed header
+      const headerOffset = -60;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
     }
+  };
+
+  const isActive = (href: string) => {
+    return activeSection === href.replace("#", "");
   };
 
   return (
@@ -53,8 +97,9 @@ export default function Header() {
           onClick={(e) => {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
+            setActiveSection("");
           }}
-          className="font-serif text-lg tracking-wide text-paper hover:text-brass transition-colors"
+          className="font-serif text-lg tracking-wide text-paper hover:text-brass transition-colors duration-300"
         >
           NS
         </a>
@@ -69,7 +114,11 @@ export default function Header() {
                   e.preventDefault();
                   handleNavClick(item.href);
                 }}
-                className="text-sm font-medium tracking-wider uppercase text-paper-muted hover:text-paper transition-colors duration-300"
+                className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${
+                  isActive(item.href)
+                    ? "text-brass"
+                    : "text-paper-muted hover:text-brass"
+                }`}
               >
                 {item.label}
               </a>
@@ -79,7 +128,7 @@ export default function Header() {
           <li>
             <button
               onClick={toggleLocale}
-              className="text-sm font-medium tracking-wider uppercase text-brass hover:text-paper transition-colors duration-300 border border-brass px-3 py-1"
+              className="text-sm font-medium tracking-wider uppercase text-brass hover:text-paper hover:bg-brass/20 transition-all duration-300 border border-brass px-3 py-1"
               aria-label={locale === "fr" ? "Switch to English" : "Passer en français"}
             >
               {locale === "fr" ? "EN" : "FR"}
@@ -130,7 +179,11 @@ export default function Header() {
                   e.preventDefault();
                   handleNavClick(item.href);
                 }}
-                className="block text-sm font-medium tracking-wider uppercase text-paper-muted hover:text-paper transition-colors"
+                className={`block text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${
+                  isActive(item.href)
+                    ? "text-brass"
+                    : "text-paper-muted hover:text-brass"
+                }`}
               >
                 {item.label}
               </a>
@@ -143,7 +196,7 @@ export default function Header() {
                 toggleLocale();
                 setIsMobileMenuOpen(false);
               }}
-              className="text-sm font-medium tracking-wider uppercase text-brass hover:text-paper transition-colors"
+              className="text-sm font-medium tracking-wider uppercase text-brass hover:text-paper transition-colors duration-300"
             >
               {locale === "fr" ? "English" : "Français"}
             </button>

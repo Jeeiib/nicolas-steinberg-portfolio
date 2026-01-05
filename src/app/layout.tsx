@@ -21,8 +21,8 @@ const siteUrl = "https://nicolassteinberg.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
-    template: "%s | Nicolas Steinberg",
+    default: "Steinberg Hospitality Analytics",
+    template: "%s | Steinberg Hospitality Analytics",
   },
   description:
     "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible. Guest Experience Leader dans l'hôtellerie de luxe 5 étoiles à Paris.",

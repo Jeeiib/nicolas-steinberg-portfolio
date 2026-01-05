@@ -5,13 +5,31 @@ import Image from "next/image";
 import { fadeIn, fadeInUp, staggerContainer } from "@/lib/animations";
 import { useI18n } from "@/lib/i18n";
 
+// GA4 Tracking
+const trackHeroCta = () => {
+  if (typeof window !== "undefined" && window.gtag) {
+    window.gtag("event", "hero_cta_clicked", {
+      event_category: "engagement",
+      event_label: "Access Analysis CTA",
+    });
+  }
+};
+
 export default function Hero() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const scrollToContent = () => {
     const philosophie = document.querySelector("#philosophie");
     if (philosophie) {
       philosophie.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const scrollToAnalytics = () => {
+    trackHeroCta();
+    const analytics = document.querySelector("#steinberg-hospitality-analytics");
+    if (analytics) {
+      analytics.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -26,10 +44,10 @@ export default function Hero() {
         animate="visible"
         className="relative z-10 flex flex-col items-center text-center"
       >
-        {/* Portrait */}
+        {/* Portrait - Compacted spacing */}
         <motion.div
           variants={fadeIn}
-          className="relative w-40 h-40 md:w-52 md:h-52 mb-10 rounded-full overflow-hidden border border-brass-light"
+          className="relative w-36 h-36 md:w-44 md:h-44 mb-6 rounded-full overflow-hidden border border-brass-light"
         >
           <Image
             src="/images/nicolas-portrait.webp"
@@ -40,23 +58,45 @@ export default function Hero() {
           />
         </motion.div>
 
-        {/* Name */}
+        {/* Name - Compacted spacing */}
         <motion.h1
           variants={fadeInUp}
-          className="font-serif text-4xl md:text-6xl lg:text-7xl tracking-wide text-paper mb-6"
+          className="font-serif text-3xl md:text-5xl lg:text-6xl tracking-wide text-paper mb-4"
         >
           NICOLAS STEINBERG
         </motion.h1>
 
-        {/* Signature phrase */}
+        {/* Signature phrase - Compacted spacing */}
         <motion.p
           variants={fadeInUp}
-          className="max-w-xl text-base md:text-lg text-paper-muted leading-relaxed tracking-wide"
+          className="max-w-xl text-base md:text-lg text-paper-muted leading-relaxed tracking-wide mb-8"
         >
           {t.hero.tagline}
           <br className="hidden md:block" />{" "}
           {t.hero.tagline2}
         </motion.p>
+
+        {/* NEW CTA - Access Analytics */}
+        <motion.button
+          variants={fadeInUp}
+          onClick={scrollToAnalytics}
+          className="btn-ghost group"
+        >
+          <span>{locale === "en" ? "ACCESS ANALYSIS" : "ACCÉDER À L'ANALYSE"}</span>
+          <svg
+            className="w-4 h-4 transition-transform group-hover:translate-y-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </motion.button>
       </motion.div>
 
       {/* Scroll indicator */}
@@ -65,7 +105,7 @@ export default function Hero() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
         onClick={scrollToContent}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer group"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer group"
         aria-label={t.hero.scrollLabel}
       >
         <motion.div
@@ -75,9 +115,16 @@ export default function Hero() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="w-px h-12 bg-gradient-to-b from-transparent via-brass to-transparent"
+          className="w-px h-10 bg-gradient-to-b from-transparent via-brass to-transparent"
         />
       </motion.button>
     </section>
   );
+}
+
+// Extend Window for gtag
+declare global {
+  interface Window {
+    gtag?: (command: string, action: string, params?: Record<string, string | number | boolean>) => void;
+  }
 }

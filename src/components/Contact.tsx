@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { trackEmailClick, trackLinkedInClick } from "./Analytics";
 
 const EMAIL = "n@nicolassteinberg.com";
-const LINKEDIN_URL = "https://linkedin.com/in/nicolas-steinberg-pro";
+const LINKEDIN_URL = "https://www.linkedin.com/in/nicolas-steinberg-pro/";
 
 export default function Contact() {
   const { t } = useI18n();
@@ -41,29 +41,32 @@ export default function Contact() {
         {/* Contact buttons */}
         <motion.div
           variants={fadeInUp}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
+          className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8"
         >
-          {/* Email button */}
-          <a
-            href={`mailto:${EMAIL}`}
-            onClick={trackEmailClick}
-            className="btn-ghost w-full sm:w-auto justify-center"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Email button with visible address */}
+          <div className="flex flex-col items-center gap-3">
+            <a
+              href={`mailto:${EMAIL}`}
+              onClick={trackEmailClick}
+              className="btn-ghost w-full sm:w-auto justify-center"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            <span>{t.contact.emailButton}</span>
-          </a>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <span>{t.contact.emailButton}</span>
+            </a>
+            <span className="text-paper-muted text-sm tracking-wide">{EMAIL}</span>
+          </div>
 
           {/* LinkedIn button */}
           <a

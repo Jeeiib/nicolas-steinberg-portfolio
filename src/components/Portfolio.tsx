@@ -160,7 +160,7 @@ export default function Portfolio() {
   });
 
   return (
-    <section ref={sectionRef} id="realisations" className="section">
+    <section ref={sectionRef} id="performance" className="section">
       <motion.div
         variants={staggerContainer}
         initial="hidden"

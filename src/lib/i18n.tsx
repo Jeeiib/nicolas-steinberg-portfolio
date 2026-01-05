@@ -14,12 +14,12 @@ export type Locale = "fr" | "en";
 // Translation dictionaries
 const dictionaries = {
   fr: {
-    // Navigation
+    // Navigation - NEW ORDER
     nav: {
       philosophy: "Philosophie",
       expertise: "Expertise",
-      strategist: "Stratège",
-      achievements: "Réalisations",
+      performance: "Performance",
+      analytics: "Steinberg Hospitality",
       contact: "Contact",
       menu: "Menu",
     },
@@ -29,12 +29,12 @@ const dictionaries = {
       tagline2: "La maîtrise de l'invisible.",
       scrollLabel: "Défiler vers le contenu",
     },
-    // Philosophy section
+    // Philosophy section - UPDATED principle1Desc
     philosophy: {
       title: "Principes Directeurs",
       principle1Title: "On ne présume jamais.",
       principle1Desc:
-        "L'interprétation est le poison de la relation humaine. Tant que l'on ne sait pas, on ne juge pas. On ne fantasme pas une intention, on ne devine pas un besoin : on se renseigne. Aller chercher l'information factuelle est le fondement de la justesse émotionnelle et de l'excellence opérationnelle.",
+        "L'interprétation est le poison de la relation humaine. Tant que l'on ne sait pas, on ne juge pas. On ne fantasme pas une intention, on ne devine pas un besoin : on se renseigne. Le silence de l'invité n'est pas une satisfaction, c'est une donnée factuelle à traiter. Aller chercher l'information factuelle est le fondement de la justesse émotionnelle et de l'excellence opérationnelle.",
       principle2Title: "Oui ou Non.",
       principle2Desc:
         "La clarté est une marque de respect. L'entre-deux est une perte de temps opérationnelle. Décider vite, agir avec justesse.",
@@ -54,7 +54,7 @@ const dictionaries = {
       area3Title: "Leadership & Influence par l'Exemple",
       area3Desc: "Direction d'équipes en environnements de haute exigence. Une autorité qui ne s'impose pas par le titre, mais par l'exemplarité opérationnelle, l'incarnation des standards et la transmission d'une culture de l'excellence.",
     },
-    // Stratege section
+    // Stratege section (kept for backwards compatibility)
     stratege: {
       surtitle: "Ingénierie Numérique",
       title: "STRATÈGE",
@@ -69,9 +69,9 @@ const dictionaries = {
       disclaimer: "Gems est une fonctionnalité de GEMINI AI by Google.",
       disclaimer2: "L'accès nécessite un compte Google.",
     },
-    // Portfolio/Achievements section
+    // Portfolio/Performance section
     portfolio: {
-      title: "Performances",
+      title: "Performance",
       subtitle:
         "Progression mesurable sur les principales plateformes de référence hôtelière.",
       metricRankingDesc: "Position dans le classement parisien",
@@ -79,12 +79,13 @@ const dictionaries = {
       metricExcellenceLabel: "Excellence Opérationnelle",
       metricExcellenceDesc: "Évaluation qualité service",
     },
-    // Contact section
+    // Contact section - UPDATED emailButton
     contact: {
       title: "Discrétion & Collaboration",
       description: "Pour échanger sur une collaboration d'exception :",
       description2: "",
-      emailButton: "Envoyer un courriel",
+      emailButton: "Initier la conversation",
+      emailAddress: "n@nicolassteinberg.com",
       linkedinButton: "Profil LinkedIn",
     },
     // Footer
@@ -93,12 +94,12 @@ const dictionaries = {
     },
   },
   en: {
-    // Navigation
+    // Navigation - NEW ORDER
     nav: {
       philosophy: "Philosophy",
       expertise: "Expertise",
-      strategist: "Strategist",
-      achievements: "Achievements",
+      performance: "Performance",
+      analytics: "Steinberg Hospitality",
       contact: "Contact",
       menu: "Menu",
     },
@@ -108,12 +109,12 @@ const dictionaries = {
       tagline2: "Mastering the invisible.",
       scrollLabel: "Scroll to content",
     },
-    // Philosophy section
+    // Philosophy section - UPDATED principle1Desc
     philosophy: {
       title: "Guiding Principles",
       principle1Title: "Never presume.",
       principle1Desc:
-        "Interpretation is the poison of human relationships. As long as we do not know, we do not judge. We do not fantasize an intention, we do not guess a need: we inquire. Seeking factual information is the foundation of emotional accuracy and operational excellence.",
+        "Interpretation is the poison of human relationships. As long as we do not know, we do not judge. We do not fantasize an intention, we do not guess a need: we inquire. The guest's silence is not satisfaction, it is factual data to be processed. Seeking factual information is the foundation of emotional accuracy and operational excellence.",
       principle2Title: "Yes or No.",
       principle2Desc:
         "Clarity is a mark of respect. Indecision is operational waste. Decide quickly, act with precision.",
@@ -133,7 +134,7 @@ const dictionaries = {
       area3Title: "Leadership & Influence by Example",
       area3Desc: "Team direction in high-demand environments. An authority that is not imposed by title, but by operational exemplarity, embodiment of standards, and transmission of a culture of excellence.",
     },
-    // Stratege section
+    // Stratege section (kept for backwards compatibility)
     stratege: {
       surtitle: "Digital Engineering",
       title: "STRATEGIST",
@@ -148,7 +149,7 @@ const dictionaries = {
       disclaimer: "Gems is a feature of GEMINI AI by Google.",
       disclaimer2: "Access requires a Google account.",
     },
-    // Portfolio/Achievements section
+    // Portfolio/Performance section
     portfolio: {
       title: "Performance",
       subtitle:
@@ -158,12 +159,13 @@ const dictionaries = {
       metricExcellenceLabel: "Operational Excellence",
       metricExcellenceDesc: "Service quality rating",
     },
-    // Contact section
+    // Contact section - UPDATED emailButton
     contact: {
       title: "Discretion & Collaboration",
       description: "To discuss an exceptional collaboration:",
       description2: "",
-      emailButton: "Send an email",
+      emailButton: "Initiate the conversation",
+      emailAddress: "n@nicolassteinberg.com",
       linkedinButton: "LinkedIn Profile",
     },
     // Footer
@@ -173,13 +175,13 @@ const dictionaries = {
   },
 };
 
-// Type for the dictionary (inferred from structure, not literal values)
+// Type for the dictionary
 export type Dictionary = {
   nav: {
     philosophy: string;
     expertise: string;
-    strategist: string;
-    achievements: string;
+    performance: string;
+    analytics: string;
     contact: string;
     menu: string;
   };
@@ -232,6 +234,7 @@ export type Dictionary = {
     description: string;
     description2: string;
     emailButton: string;
+    emailAddress: string;
     linkedinButton: string;
   };
   footer: {
