@@ -66,23 +66,25 @@ export default function Hero() {
           NICOLAS STEINBERG
         </motion.h1>
 
-        {/* Signature phrase - Compacted spacing */}
+        {/* Signature phrase - Without tagline2 */}
         <motion.p
           variants={fadeInUp}
           className="max-w-xl text-base md:text-lg text-paper-muted leading-relaxed tracking-wide mb-8"
         >
           {t.hero.tagline}
-          <br className="hidden md:block" />{" "}
-          {t.hero.tagline2}
         </motion.p>
 
-        {/* NEW CTA - Access Analytics */}
+        {/* CTA - Emerald Green Velvet Style */}
         <motion.button
           variants={fadeInUp}
           onClick={scrollToAnalytics}
-          className="btn-ghost group"
+          className="group px-6 py-3 text-sm font-medium tracking-widest uppercase
+                     bg-[#004d40] border border-[#BDB082]/60 text-[#BDB082]
+                     hover:bg-[#00382e] hover:border-[#C5B358] hover:text-[#C5B358]
+                     hover:shadow-[0_0_20px_rgba(0,77,64,0.4)]
+                     transition-all duration-300 flex items-center gap-3"
         >
-          <span>{locale === "en" ? "ACCESS ANALYSIS" : "ACCÉDER À L'ANALYSE"}</span>
+          <span>{locale === "en" ? "ACCESS STEINBERG HOSPITALITY ANALYTICS" : "ACCÉDER À STEINBERG HOSPITALITY ANALYTICS"}</span>
           <svg
             className="w-4 h-4 transition-transform group-hover:translate-y-1"
             fill="none"

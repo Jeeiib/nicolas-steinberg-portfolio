@@ -106,24 +106,29 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <ul className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <a
-                href={item.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(item.href);
-                }}
-                className={`text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${
-                  isActive(item.href)
-                    ? "text-brass"
-                    : "text-paper-muted hover:text-brass"
-                }`}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
+          {navItems.map((item) => {
+            const isAnalytics = item.href === "#steinberg-hospitality-analytics";
+            return (
+              <li key={item.href}>
+                <a
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.href);
+                  }}
+                  className={`text-sm font-medium tracking-wider uppercase transition-all duration-300 ${
+                    isAnalytics
+                      ? "bg-[#004d40] text-[#BDB082] px-3 py-1.5 border border-[#BDB082]/40 hover:bg-[#00382e] hover:text-[#C5B358] hover:border-[#C5B358]/60"
+                      : isActive(item.href)
+                        ? "text-brass"
+                        : "text-paper-muted hover:text-brass"
+                  }`}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
           {/* Language toggle */}
           <li>
             <button
@@ -171,24 +176,29 @@ export default function Header() {
         className="md:hidden overflow-hidden bg-obsidian/95 backdrop-blur-xl border-b border-brass-light"
       >
         <ul className="px-6 py-6 space-y-4">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <a
-                href={item.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleNavClick(item.href);
-                }}
-                className={`block text-sm font-medium tracking-wider uppercase transition-colors duration-300 ${
-                  isActive(item.href)
-                    ? "text-brass"
-                    : "text-paper-muted hover:text-brass"
-                }`}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
+          {navItems.map((item) => {
+            const isAnalytics = item.href === "#steinberg-hospitality-analytics";
+            return (
+              <li key={item.href}>
+                <a
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(item.href);
+                  }}
+                  className={`block text-sm font-medium tracking-wider uppercase transition-all duration-300 ${
+                    isAnalytics
+                      ? "bg-[#004d40] text-[#BDB082] px-3 py-2 border border-[#BDB082]/40 inline-block"
+                      : isActive(item.href)
+                        ? "text-brass"
+                        : "text-paper-muted hover:text-brass"
+                  }`}
+                >
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
           {/* Language toggle */}
           <li className="pt-4 border-t border-brass-light">
             <button
