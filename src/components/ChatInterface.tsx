@@ -99,10 +99,19 @@ export default function ChatInterface() {
     setMessages([welcomeMessage]);
   }, [locale]);
 
-  // Auto-scroll to bottom (only after user interaction, not on initial welcome message)
+  // Auto-scroll to start of latest assistant message (smooth scroll to beginning of response)
   useEffect(() => {
     if (messages.length > 1) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const lastMessage = messages[messages.length - 1];
+      // Only scroll for assistant responses, scroll to START of message
+      if (lastMessage.role === "assistant") {
+        setTimeout(() => {
+          const messageEl = document.getElementById(`msg-${lastMessage.id}`);
+          if (messageEl) {
+            messageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 100);
+      }
     }
   }, [messages]);
 
@@ -365,6 +374,7 @@ export default function ChatInterface() {
             {messages.map((msg) => (
               <div
                 key={msg.id}
+                id={`msg-${msg.id}`}
                 className={`chat-bubble ${msg.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"}`}
               >
                 {msg.role === "assistant" && (
