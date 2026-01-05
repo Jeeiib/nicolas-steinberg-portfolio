@@ -63,8 +63,9 @@ export default function Header() {
     setIsMobileMenuOpen(false);
     const element = document.querySelector(href);
     if (element) {
-      // Offset for fixed header
-      const headerOffset = -60;
+      // Extra offset for analytics section to show the chat container better
+      const isAnalytics = href === "#steinberg-hospitality-analytics";
+      const headerOffset = isAnalytics ? -200 : -60;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.scrollY - headerOffset;
 

@@ -29,7 +29,11 @@ export default function Hero() {
     trackHeroCta();
     const analytics = document.querySelector("#steinberg-hospitality-analytics");
     if (analytics) {
-      analytics.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Scroll lower to show the chat container better
+      const offset = 150; // Extra offset to scroll past the section title
+      const elementPosition = analytics.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY + offset;
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
     }
   };
 
