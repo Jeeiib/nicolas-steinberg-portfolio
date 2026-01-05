@@ -31,7 +31,7 @@ export default function Footer() {
                 : "Nicolas Steinberg ne travaille pas seul, découvrez le développeur Web derrière la technologie"}
             </p>
             <a
-              href="https://jbrmusic.music.blog"
+              href="https://jbrdevelopment.fr/fr"
               target="_blank"
               rel="noopener noreferrer"
               className="font-serif text-[#BDB082] text-sm tracking-widest font-light
