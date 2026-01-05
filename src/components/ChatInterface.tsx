@@ -25,6 +25,20 @@ const VIP_CODE = "steinberg-vip-member";
 const QUOTA_DISCOVERY = 3;
 const QUOTA_LINKEDIN = 20;
 
+// Normalize typographic characters to ASCII equivalents
+// Fixes issues with curly apostrophes and quotes from AI responses
+const normalizeText = (text: string): string => {
+  return text
+    // Apostrophes: right single quote, left single quote, single high-reversed-9, prime, reversed prime
+    .replace(/[\u2018\u2019\u201B\u2032\u2035]/g, "'")
+    // Double quotes: left double, right double, double high-reversed-9
+    .replace(/[\u201C\u201D\u201F]/g, '"')
+    // Dashes: en-dash, em-dash to hyphen-minus
+    .replace(/[\u2013\u2014]/g, "-")
+    // Ellipsis to three dots
+    .replace(/\u2026/g, "...");
+};
+
 // GA4 Tracking
 const trackEvent = (eventName: string, params?: Record<string, string>) => {
   if (typeof window !== "undefined" && window.gtag) {
@@ -294,7 +308,7 @@ export default function ChatInterface() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.response,
+        content: normalizeText(data.response),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
