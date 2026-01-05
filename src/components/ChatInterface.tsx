@@ -486,6 +486,12 @@ export default function ChatInterface() {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
               placeholder={locale === "en"
                 ? "Describe a situation, upload a screenshot or an audit..."
                 : "Décrivez une situation, joignez une capture d'écran ou un audit..."}
