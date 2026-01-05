@@ -24,6 +24,13 @@ export const metadata: Metadata = {
     default: "Steinberg Hospitality Analytics",
     template: "%s | Steinberg Hospitality Analytics",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-icon.svg",
+  },
   description:
     "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible. Guest Experience Leader dans l'hôtellerie de luxe 5 étoiles à Paris.",
   keywords: [
