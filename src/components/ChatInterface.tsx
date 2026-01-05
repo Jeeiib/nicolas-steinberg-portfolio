@@ -286,12 +286,10 @@ export default function ChatInterface() {
     }
   };
 
-  // Handle key press
+  // Handle key press - Enter creates new line, only click sends
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    // Shift+Enter or Enter alone just creates new line (default behavior)
+    // No automatic send on Enter - user must click send button
   };
 
   const remaining = getRemainingQuota();
@@ -466,7 +464,7 @@ export default function ChatInterface() {
               <span className="text-paper-muted/60 text-xs">
                 {remaining === Infinity
                   ? ""
-                  : `${remaining}/${quotaState.linkedinUnlocked ? QUOTA_LINKEDIN : QUOTA_DISCOVERY} ${locale === "en" ? "analyses remaining" : "analyses restantes"}`}
+                  : `${Math.max(0, QUOTA_LINKEDIN - quotaState.count)}/${QUOTA_LINKEDIN} ${locale === "en" ? "analyses remaining" : "analyses restantes"}`}
               </span>
             )}
             <button
