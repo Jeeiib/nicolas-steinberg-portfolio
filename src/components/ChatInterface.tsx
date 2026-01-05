@@ -140,13 +140,20 @@ export default function ChatInterface() {
   useEffect(() => {
     if (messages.length > 1) {
       const lastMessage = messages[messages.length - 1];
-      // Only scroll for assistant responses
-      if (lastMessage.role === "assistant") {
+      const chatContainer = document.querySelector(".chat-messages");
+
+      if (lastMessage.role === "user") {
+        // User sent a message - scroll to bottom to see loading indicator
+        setTimeout(() => {
+          if (chatContainer) {
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
+          }
+        }, 100);
+      } else if (lastMessage.role === "assistant") {
+        // AI responded - scroll to start of the response
         setTimeout(() => {
           const messageEl = document.getElementById(`msg-${lastMessage.id}`);
-          const chatContainer = document.querySelector(".chat-messages");
           if (messageEl && chatContainer) {
-            // Scroll within the chat container, not the whole page
             const containerRect = chatContainer.getBoundingClientRect();
             const messageRect = messageEl.getBoundingClientRect();
             const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
