@@ -295,12 +295,6 @@ export default function ChatInterface() {
     }
   };
 
-  // Handle key press - Enter creates new line, only click sends
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    // Shift+Enter or Enter alone just creates new line (default behavior)
-    // No automatic send on Enter - user must click send button
-  };
-
   const remaining = getRemainingQuota();
 
   return (
@@ -450,12 +444,17 @@ export default function ChatInterface() {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyPress}
               placeholder={locale === "en"
                 ? "Describe a situation, upload a screenshot or an audit..."
                 : "Décrivez une situation, joignez une capture d'écran ou un audit..."}
               className="chat-input"
-              rows={1}
+              rows={2}
+              style={{ resize: "none", overflow: "hidden", minHeight: "44px", maxHeight: "120px" }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = "auto";
+                target.style.height = Math.min(target.scrollHeight, 120) + "px";
+              }}
             />
             <button
               onClick={sendMessage}
