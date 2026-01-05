@@ -136,16 +136,21 @@ export default function ChatInterface() {
     }
   }, [messages]);
 
-  // Auto-scroll to start of latest assistant message (smooth scroll to beginning of response)
+  // Auto-scroll within chat container only (not the whole page)
   useEffect(() => {
     if (messages.length > 1) {
       const lastMessage = messages[messages.length - 1];
-      // Only scroll for assistant responses, scroll to START of message
+      // Only scroll for assistant responses
       if (lastMessage.role === "assistant") {
         setTimeout(() => {
           const messageEl = document.getElementById(`msg-${lastMessage.id}`);
-          if (messageEl) {
-            messageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+          const chatContainer = document.querySelector(".chat-messages");
+          if (messageEl && chatContainer) {
+            // Scroll within the chat container, not the whole page
+            const containerRect = chatContainer.getBoundingClientRect();
+            const messageRect = messageEl.getBoundingClientRect();
+            const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
+            chatContainer.scrollTo({ top: scrollOffset, behavior: "smooth" });
           }
         }, 100);
       }
