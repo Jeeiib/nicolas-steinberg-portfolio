@@ -378,7 +378,7 @@ export default function ChatInterface() {
           variants={fadeInUp}
           className="chat-container"
           style={{
-            maxHeight: isExpanded ? "700px" : "500px",
+            maxHeight: isExpanded ? "950px" : "680px",
             transition: "max-height 0.5s ease-out",
           }}
         >
