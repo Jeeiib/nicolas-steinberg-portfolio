@@ -84,11 +84,40 @@ export default function ChatInterface() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize quota state and welcome message
+  // Initialize quota state and load chat history or welcome message
   useEffect(() => {
     setQuotaState(getQuotaState());
 
-    // Add welcome message
+    // Check for existing chat history (valid for 24 hours)
+    const storedHistory = localStorage.getItem("steinberg_chat_history");
+    const storedTimestamp = localStorage.getItem("steinberg_chat_timestamp");
+
+    if (storedHistory && storedTimestamp) {
+      const timestamp = parseInt(storedTimestamp, 10);
+      const now = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      // If history is less than 24 hours old, restore it
+      if (now - timestamp < twentyFourHours) {
+        try {
+          const history = JSON.parse(storedHistory) as Message[];
+          if (history.length > 0) {
+            setMessages(history);
+            return;
+          }
+        } catch {
+          // Invalid JSON, clear and show welcome
+          localStorage.removeItem("steinberg_chat_history");
+          localStorage.removeItem("steinberg_chat_timestamp");
+        }
+      } else {
+        // History expired, clear it
+        localStorage.removeItem("steinberg_chat_history");
+        localStorage.removeItem("steinberg_chat_timestamp");
+      }
+    }
+
+    // No valid history, show welcome message
     const welcomeMessage: Message = {
       id: "welcome",
       role: "assistant",
@@ -98,6 +127,14 @@ export default function ChatInterface() {
     };
     setMessages([welcomeMessage]);
   }, [locale]);
+
+  // Save chat history to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 0 && messages[0].id !== "welcome" || messages.length > 1) {
+      localStorage.setItem("steinberg_chat_history", JSON.stringify(messages));
+      localStorage.setItem("steinberg_chat_timestamp", Date.now().toString());
+    }
+  }, [messages]);
 
   // Auto-scroll to start of latest assistant message (smooth scroll to beginning of response)
   useEffect(() => {
