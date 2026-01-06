@@ -394,8 +394,8 @@ export default function ChatInterface() {
           </h2>
           <p className="max-w-2xl mx-auto text-paper-muted leading-relaxed">
             {locale === "en"
-              ? "Predictive analytics and hospitality operational excellence interface. Eliminate interpretation, restore facts. Submit a case, receive a surgical strategy aligned with Palace standards."
-              : "Interface d'analyse prédictive et d'excellence opérationnelle hôtelière. Éliminez l'interprétation, restaurez les faits. Soumettez une problématique, obtenez une stratégie chirurgicale alignée sur les standards Palace."}
+              ? "Strategic intelligence for Hospitality, Restaurants & Retail. From 2-star to Palace: Instantly get your responses written (Reviews, Emails) and your operational strategies. Submit a situation: receive a surgical deliverable calibrated to your reality."
+              : "L'intelligence stratégique pour Hôtellerie, Restauration & Retail. Du 2 étoiles au Palace : Obtenez instantanément la rédaction de vos réponses (Avis, Emails) et vos stratégies opérationnelles. Soumettez une situation : recevez un livrable chirurgical calibré sur votre réalité."}
           </p>
         </motion.div>
 

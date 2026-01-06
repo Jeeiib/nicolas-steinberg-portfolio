@@ -20,9 +20,19 @@ export default function Footer() {
         {/* Developer Credit Block */}
         <div className="mb-8">
           <p className="text-[#BDB082]/60 text-xs tracking-wide font-light mb-4">
-            {locale === "en"
-              ? "Nicolas Steinberg doesn't work alone, discover the Web developer behind the technology"
-              : "Nicolas Steinberg ne travaille pas seul, découvrez le développeur Web derrière la technologie"}
+            {locale === "en" ? (
+              <>
+                Did you like Nicolas Steinberg's vision, methods and precision?
+                <br className="hidden sm:inline" />{" "}
+                Discover the Web developer behind the technical side of this tool
+              </>
+            ) : (
+              <>
+                Vous avez aimé la vision, les méthodes et la précision de Nicolas Steinberg ?
+                <br className="hidden sm:inline" />{" "}
+                Découvrez le développeur Web derrière l'aspect technique de cet outil
+              </>
+            )}
           </p>
           <a
             href="https://jbrdevelopment.fr/fr"
