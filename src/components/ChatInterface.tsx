@@ -978,7 +978,9 @@ export default function ChatInterface() {
 
           {/* Messages Area */}
           <div className="chat-messages">
-            {filteredMessages.map((msg) => (
+            {filteredMessages
+              .filter((msg) => !(isLoading && msg.role === "assistant" && msg.content === ""))
+              .map((msg) => (
               <div
                 key={msg.id}
                 id={`msg-${msg.id}`}
