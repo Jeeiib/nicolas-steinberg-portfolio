@@ -194,6 +194,8 @@ export default function ChatInterface() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [currentSummary, setCurrentSummary] = useState<string | null>(null);
   const [summarizedUpTo, setSummarizedUpTo] = useState<number>(0);
+  const [editingConvId, setEditingConvId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -463,6 +465,33 @@ export default function ChatInterface() {
       resetChat();
     }
     trackEvent("chat_delete_conversation");
+  };
+
+  // Start editing conversation title
+  const startEditingConversation = (convId: string, currentTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingConvId(convId);
+    setEditingTitle(currentTitle);
+  };
+
+  // Save renamed conversation
+  const saveConversationTitle = (convId: string) => {
+    if (!editingTitle.trim()) {
+      setEditingConvId(null);
+      return;
+    }
+
+    setConversations((prev) => {
+      const updated = prev.map((c) =>
+        c.id === convId ? { ...c, title: editingTitle.trim() } : c
+      );
+      saveConversations(updated);
+      return updated;
+    });
+
+    setEditingConvId(null);
+    setEditingTitle("");
+    trackEvent("chat_rename_conversation");
   };
 
   // Copy message to clipboard
@@ -838,27 +867,56 @@ export default function ChatInterface() {
                       conversations.map((conv) => (
                         <div
                           key={conv.id}
-                          onClick={() => switchConversation(conv.id)}
+                          onClick={() => editingConvId !== conv.id && switchConversation(conv.id)}
                           className={`group px-4 py-3 cursor-pointer hover:bg-paper/5 transition-colors border-b border-brass/10 ${
                             conv.id === activeConversationId ? "bg-brass/10" : ""
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1 min-w-0">
-                              <p className="text-paper text-sm truncate">{conv.title}</p>
+                              {editingConvId === conv.id ? (
+                                <input
+                                  type="text"
+                                  value={editingTitle}
+                                  onChange={(e) => setEditingTitle(e.target.value)}
+                                  onBlur={() => saveConversationTitle(conv.id)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveConversationTitle(conv.id);
+                                    if (e.key === "Escape") setEditingConvId(null);
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                  autoFocus
+                                  className="w-full bg-paper/10 text-paper text-sm px-2 py-1 rounded border border-brass/30 focus:border-brass focus:outline-none"
+                                />
+                              ) : (
+                                <p className="text-paper text-sm truncate">{conv.title}</p>
+                              )}
                               <p className="text-paper-muted/50 text-xs mt-0.5">
                                 {formatTimestamp(conv.updatedAt, locale)}
                               </p>
                             </div>
-                            <button
-                              onClick={(e) => deleteConversation(conv.id, e)}
-                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 transition-all"
-                              title={locale === "en" ? "Delete" : "Supprimer"}
-                            >
-                              <svg className="w-4 h-4 text-paper-muted hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                            <div className="flex items-center gap-1">
+                              {/* Rename button */}
+                              <button
+                                onClick={(e) => startEditingConversation(conv.id, conv.title, e)}
+                                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-paper/10 transition-all"
+                                title={locale === "en" ? "Rename" : "Renommer"}
+                              >
+                                <svg className="w-4 h-4 text-paper-muted hover:text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                              </button>
+                              {/* Delete button */}
+                              <button
+                                onClick={(e) => deleteConversation(conv.id, e)}
+                                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 transition-all"
+                                title={locale === "en" ? "Delete" : "Supprimer"}
+                              >
+                                <svg className="w-4 h-4 text-paper-muted hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))
