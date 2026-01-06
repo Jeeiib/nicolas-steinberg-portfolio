@@ -15,6 +15,14 @@ interface Message {
   feedback?: "positive" | "negative" | null;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 interface FileData {
   data: string;
   mimeType: string;
@@ -120,6 +128,41 @@ const clearChatHistory = () => {
   localStorage.removeItem("steinberg_chat_timestamp");
 };
 
+// Multi-conversation management
+const CONVERSATIONS_KEY = "steinberg_conversations";
+const ACTIVE_CONVERSATION_KEY = "steinberg_active_conversation";
+const MAX_CONVERSATIONS = 10;
+
+const getConversations = (): Conversation[] => {
+  if (typeof window === "undefined") return [];
+  const stored = localStorage.getItem(CONVERSATIONS_KEY);
+  if (!stored) return [];
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return [];
+  }
+};
+
+const saveConversations = (conversations: Conversation[]) => {
+  localStorage.setItem(CONVERSATIONS_KEY, JSON.stringify(conversations));
+};
+
+const getActiveConversationId = (): string | null => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(ACTIVE_CONVERSATION_KEY);
+};
+
+const setActiveConversationId = (id: string) => {
+  localStorage.setItem(ACTIVE_CONVERSATION_KEY, id);
+};
+
+const generateConversationTitle = (firstMessage: string, locale: string): string => {
+  // Extract first ~30 chars of user message as title
+  const truncated = firstMessage.slice(0, 40).trim();
+  return truncated.length < firstMessage.length ? truncated + "..." : truncated;
+};
+
 const activateVip = () => {
   localStorage.setItem("steinberg_vip_status", "true");
 };
@@ -140,68 +183,98 @@ export default function ChatInterface() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationIdState] = useState<string | null>(null);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize quota state and load chat history or welcome message
+  // Create welcome message helper
+  const createWelcomeMessage = useCallback((): Message => ({
+    id: "welcome",
+    role: "assistant",
+    content: locale === "en"
+      ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
+      : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
+    timestamp: Date.now(),
+  }), [locale]);
+
+  // Initialize quota state and load conversations
   useEffect(() => {
     setQuotaState(getQuotaState());
 
-    // Check for existing chat history (valid for 24 hours)
-    const storedHistory = localStorage.getItem("steinberg_chat_history");
-    const storedTimestamp = localStorage.getItem("steinberg_chat_timestamp");
+    // Load all conversations
+    const storedConversations = getConversations();
+    const activeId = getActiveConversationId();
 
-    if (storedHistory && storedTimestamp) {
-      const timestamp = parseInt(storedTimestamp, 10);
-      const now = Date.now();
-      const twentyFourHours = 24 * 60 * 60 * 1000;
+    // Clean up old conversations (older than 7 days)
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const validConversations = storedConversations.filter(
+      (conv) => conv.updatedAt > sevenDaysAgo
+    );
 
-      // If history is less than 24 hours old, restore it
-      if (now - timestamp < twentyFourHours) {
-        try {
-          const history = JSON.parse(storedHistory) as Message[];
-          if (history.length > 0) {
-            // Normalize any stored messages that may have curly quotes
-            const normalizedHistory = history.map((msg) => ({
-              ...msg,
-              content: normalizeText(msg.content),
-            }));
-            setMessages(normalizedHistory);
-            return;
-          }
-        } catch {
-          // Invalid JSON, clear and show welcome
-          localStorage.removeItem("steinberg_chat_history");
-          localStorage.removeItem("steinberg_chat_timestamp");
-        }
-      } else {
-        // History expired, clear it
-        localStorage.removeItem("steinberg_chat_history");
-        localStorage.removeItem("steinberg_chat_timestamp");
+    if (validConversations.length !== storedConversations.length) {
+      saveConversations(validConversations);
+    }
+
+    setConversations(validConversations);
+
+    // Find active conversation or create new one
+    if (activeId && validConversations.find((c) => c.id === activeId)) {
+      setActiveConversationIdState(activeId);
+      const activeConv = validConversations.find((c) => c.id === activeId);
+      if (activeConv) {
+        setMessages(activeConv.messages);
+        return;
       }
     }
 
-    // No valid history, show welcome message
-    const welcomeMessage: Message = {
-      id: "welcome",
-      role: "assistant",
-      content: locale === "en"
-        ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
-        : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
-      timestamp: Date.now(),
-    };
-    setMessages([welcomeMessage]);
-  }, [locale]);
+    // No active conversation, show welcome
+    setMessages([createWelcomeMessage()]);
+  }, [locale, createWelcomeMessage]);
 
-  // Save chat history to localStorage whenever messages change
+  // Save messages to active conversation whenever they change
   useEffect(() => {
-    if (messages.length > 0 && messages[0].id !== "welcome" || messages.length > 1) {
-      localStorage.setItem("steinberg_chat_history", JSON.stringify(messages));
-      localStorage.setItem("steinberg_chat_timestamp", Date.now().toString());
+    // Only save if we have real messages (not just welcome)
+    if (messages.length <= 1 && messages[0]?.id === "welcome") return;
+
+    if (activeConversationId) {
+      // Update existing conversation
+      setConversations((prev) => {
+        const updated = prev.map((conv) =>
+          conv.id === activeConversationId
+            ? { ...conv, messages, updatedAt: Date.now() }
+            : conv
+        );
+        saveConversations(updated);
+        return updated;
+      });
+    } else {
+      // Create new conversation when first real message is sent
+      const firstUserMessage = messages.find((m) => m.role === "user");
+      if (firstUserMessage) {
+        const newConv: Conversation = {
+          id: Date.now().toString(),
+          title: generateConversationTitle(firstUserMessage.content, locale),
+          messages,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+
+        setActiveConversationIdState(newConv.id);
+        setActiveConversationId(newConv.id);
+
+        setConversations((prev) => {
+          // Limit to MAX_CONVERSATIONS
+          const updated = [newConv, ...prev].slice(0, MAX_CONVERSATIONS);
+          saveConversations(updated);
+          return updated;
+        });
+      }
     }
-  }, [messages]);
+  }, [messages, activeConversationId, locale]);
 
   // Auto-scroll within chat container only (not the whole page)
   useEffect(() => {
@@ -306,19 +379,41 @@ export default function ChatInterface() {
 
   // Reset chat - start a new conversation
   const resetChat = () => {
-    clearChatHistory();
     setFiles([]);
     setInput("");
-    const welcomeMessage: Message = {
-      id: "welcome",
-      role: "assistant",
-      content: locale === "en"
-        ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
-        : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
-      timestamp: Date.now(),
-    };
-    setMessages([welcomeMessage]);
+    setActiveConversationIdState(null);
+    localStorage.removeItem(ACTIVE_CONVERSATION_KEY);
+    setMessages([createWelcomeMessage()]);
+    setShowSidebar(false);
     trackEvent("chat_reset");
+  };
+
+  // Switch to a different conversation
+  const switchConversation = (convId: string) => {
+    const conv = conversations.find((c) => c.id === convId);
+    if (conv) {
+      setActiveConversationIdState(convId);
+      setActiveConversationId(convId);
+      setMessages(conv.messages);
+      setShowSidebar(false);
+      trackEvent("chat_switch_conversation");
+    }
+  };
+
+  // Delete a conversation
+  const deleteConversation = (convId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setConversations((prev) => {
+      const updated = prev.filter((c) => c.id !== convId);
+      saveConversations(updated);
+      return updated;
+    });
+
+    // If deleting active conversation, reset
+    if (convId === activeConversationId) {
+      resetChat();
+    }
+    trackEvent("chat_delete_conversation");
   };
 
   // Copy message to clipboard
@@ -585,15 +680,121 @@ export default function ChatInterface() {
         {/* Chat Container - Accordion style */}
         <motion.div
           variants={fadeInUp}
-          className="chat-container"
+          className="chat-container relative overflow-hidden"
           style={{
             maxHeight: isExpanded ? "950px" : "680px",
             transition: "max-height 0.5s ease-out",
           }}
         >
+          {/* Conversations Sidebar */}
+          <AnimatePresence>
+            {showSidebar && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-obsidian/80 z-20"
+                  onClick={() => setShowSidebar(false)}
+                />
+                {/* Sidebar Panel */}
+                <motion.div
+                  initial={{ x: "-100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="absolute left-0 top-0 bottom-0 w-64 bg-obsidian border-r border-brass/20 z-30 flex flex-col"
+                >
+                  {/* Sidebar Header */}
+                  <div className="p-4 border-b border-brass/20 flex items-center justify-between">
+                    <h4 className="text-paper font-medium text-sm">
+                      {locale === "en" ? "Conversations" : "Conversations"}
+                    </h4>
+                    <button
+                      onClick={() => setShowSidebar(false)}
+                      className="p-1 rounded hover:bg-paper/10 transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-paper-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* New Chat Button */}
+                  <button
+                    onClick={resetChat}
+                    className="m-3 px-4 py-2 rounded-lg border border-brass/30 text-brass hover:bg-brass/10 transition-colors text-sm flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    {locale === "en" ? "New Chat" : "Nouveau Chat"}
+                  </button>
+
+                  {/* Conversations List */}
+                  <div className="flex-1 overflow-y-auto">
+                    {conversations.length === 0 ? (
+                      <p className="text-paper-muted/50 text-xs text-center py-8 px-4">
+                        {locale === "en" ? "No conversations yet" : "Aucune conversation"}
+                      </p>
+                    ) : (
+                      conversations.map((conv) => (
+                        <div
+                          key={conv.id}
+                          onClick={() => switchConversation(conv.id)}
+                          className={`group px-4 py-3 cursor-pointer hover:bg-paper/5 transition-colors border-b border-brass/10 ${
+                            conv.id === activeConversationId ? "bg-brass/10" : ""
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-paper text-sm truncate">{conv.title}</p>
+                              <p className="text-paper-muted/50 text-xs mt-0.5">
+                                {formatTimestamp(conv.updatedAt, locale)}
+                              </p>
+                            </div>
+                            <button
+                              onClick={(e) => deleteConversation(conv.id, e)}
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500/20 transition-all"
+                              title={locale === "en" ? "Delete" : "Supprimer"}
+                            >
+                              <svg className="w-4 h-4 text-paper-muted hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-3 border-t border-brass/20 text-center">
+                    <p className="text-paper-muted/40 text-xs">
+                      {conversations.length}/{MAX_CONVERSATIONS} {locale === "en" ? "saved" : "sauvegardées"}
+                    </p>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+
           {/* Chat Header */}
           <div className="chat-header">
             <div className="flex items-center gap-3">
+              {/* Sidebar Toggle - only show if there are conversations */}
+              {conversations.length > 0 && (
+                <button
+                  onClick={() => setShowSidebar(true)}
+                  className="p-2 -ml-2 rounded-lg hover:bg-paper/10 transition-colors"
+                  title={locale === "en" ? "Conversations" : "Conversations"}
+                >
+                  <svg className="w-5 h-5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              )}
               <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30">
                 <span className="font-serif text-brass text-lg">S</span>
               </div>
