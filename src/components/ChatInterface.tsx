@@ -541,22 +541,22 @@ export default function ChatInterface() {
             </button>
           </div>
 
-          {/* Footer */}
-          <div className="chat-footer">
-            {!quotaState.isVip && (
+          {/* Footer - only show for non-VIP users */}
+          {!quotaState.isVip && (
+            <div className="chat-footer">
               <span className="text-paper-muted/60 text-xs">
                 {remaining === Infinity
                   ? ""
                   : `${Math.max(0, QUOTA_LINKEDIN - quotaState.count)}/${QUOTA_LINKEDIN} ${locale === "en" ? "analyses remaining" : "analyses restantes"}`}
               </span>
-            )}
-            <button
-              onClick={() => setShowVipModal(true)}
-              className="text-paper-muted/40 hover:text-brass text-xs transition-colors"
-            >
-              {locale === "en" ? "Partner Access" : "Accès Partenaire"}
-            </button>
-          </div>
+              <button
+                onClick={() => setShowVipModal(true)}
+                className="text-paper-muted/40 hover:text-brass text-xs transition-colors"
+              >
+                {locale === "en" ? "Partner Access" : "Accès Partenaire"}
+              </button>
+            </div>
+          )}
         </motion.div>
       </motion.div>
 
