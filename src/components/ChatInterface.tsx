@@ -11,6 +11,8 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   files?: { name: string; type: string }[];
+  timestamp?: number;
+  feedback?: "positive" | "negative" | null;
 }
 
 interface FileData {
@@ -24,6 +26,42 @@ const LINKEDIN_URL = "https://www.linkedin.com/in/nicolas-steinberg-pro/";
 const VIP_CODE = "steinberg-vip-member";
 const QUOTA_DISCOVERY = 3;
 const QUOTA_LINKEDIN = 20;
+
+// Quick reply suggestions
+const QUICK_REPLIES = {
+  en: [
+    "Analyze a negative review",
+    "Write a response to a complaint",
+    "Improve my service standards",
+    "Train my team on guest experience"
+  ],
+  fr: [
+    "Analyser un avis négatif",
+    "Rédiger une réponse à une réclamation",
+    "Améliorer mes standards de service",
+    "Former mon équipe à l'expérience client"
+  ]
+};
+
+// Format timestamp for display
+const formatTimestamp = (timestamp: number, locale: string): string => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+
+  if (isToday) {
+    return date.toLocaleTimeString(locale === "en" ? "en-US" : "fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+  return date.toLocaleDateString(locale === "en" ? "en-US" : "fr-FR", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+};
 
 // Normalize typographic characters to ASCII equivalents
 // Fixes issues with curly apostrophes and quotes from AI responses
@@ -98,6 +136,10 @@ export default function ChatInterface() {
   const [vipCode, setVipCode] = useState("");
   const [vipError, setVipError] = useState(false);
   const [quotaState, setQuotaState] = useState({ count: 0, isVip: false, linkedinUnlocked: false });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -148,6 +190,7 @@ export default function ChatInterface() {
       content: locale === "en"
         ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
         : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
+      timestamp: Date.now(),
     };
     setMessages([welcomeMessage]);
   }, [locale]);
@@ -272,10 +315,82 @@ export default function ChatInterface() {
       content: locale === "en"
         ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
         : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
+      timestamp: Date.now(),
     };
     setMessages([welcomeMessage]);
     trackEvent("chat_reset");
   };
+
+  // Copy message to clipboard
+  const copyMessage = async (content: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+      trackEvent("chat_message_copied");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  // Set feedback on a message
+  const setFeedback = (messageId: string, feedback: "positive" | "negative") => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId
+          ? { ...msg, feedback: msg.feedback === feedback ? null : feedback }
+          : msg
+      )
+    );
+    trackEvent("chat_feedback", { feedback, message_id: messageId });
+  };
+
+  // Handle quick reply click
+  const handleQuickReply = (reply: string) => {
+    setInput(reply);
+    inputRef.current?.focus();
+    trackEvent("chat_quick_reply", { reply });
+  };
+
+  // Export conversation
+  const exportConversation = (format: "txt" | "json") => {
+    const exportData = messages.filter((m) => m.id !== "welcome");
+    let content: string;
+    let filename: string;
+    let type: string;
+
+    if (format === "txt") {
+      content = exportData
+        .map((m) => {
+          const time = m.timestamp ? formatTimestamp(m.timestamp, locale) : "";
+          const role = m.role === "user" ? (locale === "en" ? "You" : "Vous") : "Steinberg";
+          return `[${time}] ${role}:\n${m.content}\n`;
+        })
+        .join("\n---\n\n");
+      filename = `steinberg-chat-${new Date().toISOString().split("T")[0]}.txt`;
+      type = "text/plain";
+    } else {
+      content = JSON.stringify(exportData, null, 2);
+      filename = `steinberg-chat-${new Date().toISOString().split("T")[0]}.json`;
+      type = "application/json";
+    }
+
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    trackEvent("chat_exported", { format });
+  };
+
+  // Filter messages for search
+  const filteredMessages = searchQuery
+    ? messages.filter((m) =>
+        m.content.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : messages;
 
   // Send message
   const sendMessage = async () => {
@@ -299,6 +414,7 @@ export default function ChatInterface() {
       role: "user",
       content: input,
       files: files.map((f) => ({ name: f.name, type: f.mimeType })),
+      timestamp: Date.now(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -313,6 +429,16 @@ export default function ChatInterface() {
       message_length: String(input.length),
     });
 
+    // Create placeholder message for streaming
+    const assistantId = (Date.now() + 1).toString();
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, assistantMessage]);
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -322,22 +448,53 @@ export default function ChatInterface() {
           files: currentFiles,
           locale,
           history: messages.slice(-10), // Last 10 messages for context
+          stream: true,
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Erreur API");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur API");
       }
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: normalizeText(data.response),
-      };
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = "";
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") break;
+
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.text) {
+                  fullContent += parsed.text;
+                  // Update message content progressively
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantId
+                        ? { ...msg, content: normalizeText(fullContent) }
+                        : msg
+                    )
+                  );
+                }
+              } catch {
+                // Skip malformed JSON
+              }
+            }
+          }
+        }
+      }
 
       // Increment quota only on success
       if (!state.isVip) {
@@ -346,14 +503,19 @@ export default function ChatInterface() {
       }
     } catch (error) {
       console.error("Chat error:", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: locale === "en"
-          ? "An error occurred during analysis. Please try again."
-          : "Une erreur est survenue lors de l'analyse. Veuillez réessayer.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      // Update the placeholder message with error
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === assistantId
+            ? {
+                ...msg,
+                content: locale === "en"
+                  ? "An error occurred during analysis. Please try again."
+                  : "Une erreur est survenue lors de l'analyse. Veuillez réessayer.",
+              }
+            : msg
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -442,7 +604,7 @@ export default function ChatInterface() {
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {quotaState.isVip && (
                 <div className="flex items-center gap-2 text-brass text-xs">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -451,6 +613,27 @@ export default function ChatInterface() {
                   <span>VIP</span>
                 </div>
               )}
+              {/* Search Button */}
+              <button
+                onClick={() => setShowSearch(!showSearch)}
+                className={`p-2 rounded-lg hover:bg-paper/10 transition-colors ${showSearch ? "bg-paper/10" : ""}`}
+                title={locale === "en" ? "Search" : "Rechercher"}
+              >
+                <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              {/* Export Button */}
+              <button
+                onClick={() => exportConversation("txt")}
+                disabled={messages.length <= 1}
+                className="p-2 rounded-lg hover:bg-paper/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                title={locale === "en" ? "Export conversation" : "Exporter la conversation"}
+              >
+                <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </button>
               {/* New Chat Button */}
               <button
                 onClick={resetChat}
@@ -458,20 +641,51 @@ export default function ChatInterface() {
                 className="p-2 rounded-lg hover:bg-paper/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 title={locale === "en" ? "New conversation" : "Nouvelle conversation"}
               >
-                <svg className="w-5 h-5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
               </button>
             </div>
           </div>
 
+          {/* Search Bar */}
+          {showSearch && (
+            <div className="px-4 py-2 border-b border-brass/20">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={locale === "en" ? "Search in conversation..." : "Rechercher dans la conversation..."}
+                  className="w-full bg-obsidian/50 border border-brass/20 rounded-lg px-3 py-2 text-sm text-paper placeholder-paper-muted/50 focus:outline-none focus:border-brass/40"
+                  autoFocus
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-paper-muted hover:text-paper"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              {searchQuery && (
+                <p className="text-xs text-paper-muted mt-1">
+                  {filteredMessages.length} {locale === "en" ? "result(s)" : "résultat(s)"}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Messages Area */}
           <div className="chat-messages">
-            {messages.map((msg) => (
+            {filteredMessages.map((msg) => (
               <div
                 key={msg.id}
                 id={`msg-${msg.id}`}
-                className={`chat-bubble ${msg.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"}`}
+                className={`chat-bubble ${msg.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"} group`}
               >
                 {msg.role === "assistant" && (
                   <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30 flex-shrink-0 mr-3">
@@ -489,23 +703,98 @@ export default function ChatInterface() {
                     </div>
                   )}
                   <div className="chat-content whitespace-pre-wrap">{msg.content}</div>
+                  {/* Message footer: timestamp + actions */}
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-brass/10">
+                    {/* Timestamp */}
+                    <span className="text-[10px] text-paper-muted/50">
+                      {msg.timestamp ? formatTimestamp(msg.timestamp, locale) : ""}
+                    </span>
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Copy button */}
+                      <button
+                        onClick={() => copyMessage(msg.content, msg.id)}
+                        className="p-1 rounded hover:bg-paper/10 transition-colors"
+                        title={locale === "en" ? "Copy" : "Copier"}
+                      >
+                        {copiedId === msg.id ? (
+                          <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </button>
+                      {/* Feedback buttons (only for assistant messages, not welcome) */}
+                      {msg.role === "assistant" && msg.id !== "welcome" && (
+                        <>
+                          <button
+                            onClick={() => setFeedback(msg.id, "positive")}
+                            className={`p-1 rounded hover:bg-paper/10 transition-colors ${msg.feedback === "positive" ? "text-green-400" : "text-paper-muted hover:text-paper"}`}
+                            title={locale === "en" ? "Helpful" : "Utile"}
+                          >
+                            <svg className="w-3.5 h-3.5" fill={msg.feedback === "positive" ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setFeedback(msg.id, "negative")}
+                            className={`p-1 rounded hover:bg-paper/10 transition-colors ${msg.feedback === "negative" ? "text-red-400" : "text-paper-muted hover:text-paper"}`}
+                            title={locale === "en" ? "Not helpful" : "Pas utile"}
+                          >
+                            <svg className="w-3.5 h-3.5" fill={msg.feedback === "negative" ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                            </svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {/* Show typing indicator only when loading AND last message is empty (stream starting) */}
+            {isLoading && messages.length > 0 && messages[messages.length - 1].content === "" && (
               <div className="chat-bubble chat-bubble-assistant">
                 <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30 flex-shrink-0 mr-3">
                   <span className="font-serif text-brass text-xs">S</span>
                 </div>
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-xs text-paper-muted/50">
+                    {locale === "en" ? "Analyzing..." : "Analyse en cours..."}
+                  </span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Quick Replies - Show only when there's just the welcome message */}
+          {messages.length === 1 && messages[0].id === "welcome" && !isLoading && (
+            <div className="px-4 py-3 border-t border-brass/20">
+              <p className="text-xs text-paper-muted/60 mb-2">
+                {locale === "en" ? "Quick suggestions:" : "Suggestions rapides :"}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_REPLIES[locale === "en" ? "en" : "fr"].map((reply, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickReply(reply)}
+                    className="text-xs px-3 py-1.5 rounded-full border border-brass/30 text-paper-muted hover:text-paper hover:border-brass/50 hover:bg-brass/10 transition-all"
+                  >
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* File Preview */}
           {files.length > 0 && (

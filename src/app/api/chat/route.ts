@@ -152,7 +152,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, files, locale, history } = await request.json();
+    const { message, files, locale, history, stream = true } = await request.json();
 
     if (!message && (!files || files.length === 0)) {
       return NextResponse.json(
@@ -209,7 +209,38 @@ export async function POST(request: NextRequest) {
       parts.push({ text: `${languageInstruction}\n\n${message}` });
     }
 
-    // Generate response
+    // Streaming response
+    if (stream) {
+      const streamResult = await model.generateContentStream(parts);
+
+      const readableStream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder();
+          try {
+            for await (const chunk of streamResult.stream) {
+              const text = chunk.text();
+              if (text) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              }
+            }
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+          }
+        },
+      });
+
+      return new Response(readableStream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      });
+    }
+
+    // Non-streaming response (fallback)
     const result = await model.generateContent(parts);
     const response = result.response;
     const text = response.text();
