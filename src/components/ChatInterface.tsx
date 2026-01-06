@@ -206,8 +206,8 @@ export default function ChatInterface() {
     id: "welcome",
     role: "assistant",
     content: locale === "en"
-      ? "Welcome. I am your strategic analyst. My methodology: facts over interpretation. We process data to restore the precision of your Palace standards. How may I assist you?"
-      : "Bienvenue. Je suis votre analyste stratégique. Ma méthodologie : le fait contre l'interprétation. Ici, nous traitons des données pour restaurer la précision de vos standards Palace. Comment puis-je vous assister ?",
+      ? "Welcome. Excellence is not about stars, but about precision. I'm here to elevate your standards, whatever your reality.\n\nI can immediately: • 🛡️ Defuse a crisis or respond to a negative review. • 📝 Draft your procedures and sensitive emails. • 💡 Optimize your guests' experience.\n\nTo calibrate my analysis right now: What type of establishment do you work in? (Hotel, Restaurant, Independent, Franchise...)"
+      : "Bienvenue. L'excellence n'est pas une question d'étoiles, mais de précision. Je suis là pour élever vos standards, quelle que soit votre réalité.\n\nJe peux immédiatement : • 🛡️ Désamorcer une crise ou répondre à un avis négatif. • 📝 Rédiger vos procédures et emails délicats. • 💡 Optimiser l'expérience de vos clients.\n\nPour calibrer mon analyse dès maintenant : Dans quel type d'établissement travaillez-vous ? (Hôtel, Restaurant, Indépendant, Franchise...)",
     timestamp: Date.now(),
   }), [locale]);
 
