@@ -21,7 +21,7 @@ const siteUrl = "https://nicolassteinberg.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Steinberg Hospitality Analytics",
+    default: "Nicolas Steinberg | Steinberg Hospitality Analytics",
     template: "%s | Steinberg Hospitality Analytics",
   },
   icons: {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     apple: "/apple-icon.svg",
   },
   description:
-    "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible. Guest Experience Leader dans l'hôtellerie de luxe 5 étoiles à Paris.",
+    "Ne subissez plus l'opérationnel. Accédez à l'intelligence artificielle experte en standards hôteliers. Audit, SOPs et Gestion de crise pour tout établissement.",
   keywords: [
     "Nicolas Steinberg",
     "hospitality",
@@ -47,12 +47,16 @@ export const metadata: Metadata = {
     "hôtellerie de luxe",
     "expérience client",
     "TripAdvisor",
+    "intelligence artificielle",
+    "audit hôtelier",
+    "SOPs",
+    "gestion de crise",
   ],
   authors: [{ name: "Nicolas Steinberg" }],
   creator: "Nicolas Steinberg",
   openGraph: {
-    title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
-    description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
+    title: "Nicolas Steinberg | Steinberg Hospitality Analytics",
+    description: "Ne subissez plus l'opérationnel. Accédez à l'intelligence artificielle experte en standards hôteliers. Audit, SOPs et Gestion de crise pour tout établissement.",
     url: siteUrl,
     siteName: "Nicolas Steinberg",
     type: "website",
@@ -60,8 +64,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nicolas Steinberg | Hospitality & Guest Experience Leader",
-    description: "L'art de la précision. L'exigence du détail. La maîtrise de l'invisible.",
+    title: "Nicolas Steinberg | Steinberg Hospitality Analytics",
+    description: "Ne subissez plus l'opérationnel. Accédez à l'intelligence artificielle experte en standards hôteliers.",
   },
   robots: {
     index: true,
