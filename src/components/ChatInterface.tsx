@@ -681,6 +681,7 @@ export default function ChatInterface() {
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let fullContent = "";
+      let buffer = ""; // Buffer for incomplete SSE lines
 
       if (reader) {
         while (true) {
@@ -688,12 +689,17 @@ export default function ChatInterface() {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          buffer += chunk;
+
+          // Process complete lines only
+          const lines = buffer.split("\n");
+          // Keep the last potentially incomplete line in the buffer
+          buffer = lines.pop() || "";
 
           for (const line of lines) {
             if (line.startsWith("data: ")) {
-              const data = line.slice(6);
-              if (data === "[DONE]") break;
+              const data = line.slice(6).trim();
+              if (data === "[DONE]") continue;
 
               try {
                 const parsed = JSON.parse(data);
@@ -709,8 +715,30 @@ export default function ChatInterface() {
                   );
                 }
               } catch {
-                // Skip malformed JSON
+                // Skip malformed JSON - might be empty line
               }
+            }
+          }
+        }
+
+        // Process any remaining data in buffer
+        if (buffer.startsWith("data: ")) {
+          const data = buffer.slice(6).trim();
+          if (data && data !== "[DONE]") {
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                fullContent += parsed.text;
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantId
+                      ? { ...msg, content: normalizeText(fullContent) }
+                      : msg
+                  )
+                );
+              }
+            } catch {
+              // Final buffer wasn't valid JSON
             }
           }
         }
