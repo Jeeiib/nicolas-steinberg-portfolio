@@ -547,7 +547,7 @@ export default function ChatInterface() {
               <span className="text-paper-muted/60 text-xs">
                 {remaining === Infinity
                   ? ""
-                  : `${Math.max(0, QUOTA_LINKEDIN - quotaState.count)}/${QUOTA_LINKEDIN} ${locale === "en" ? "analyses remaining" : "analyses restantes"}`}
+                  : `${Math.max(0, QUOTA_LINKEDIN - quotaState.count)}/${QUOTA_LINKEDIN} ${locale === "en" ? "analyses remaining - resets every 24h" : "analyses restantes - reinitialise toutes les 24h"}`}
               </span>
               <button
                 onClick={() => setShowVipModal(true)}
