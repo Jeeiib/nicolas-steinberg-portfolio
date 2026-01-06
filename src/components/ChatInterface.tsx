@@ -21,6 +21,8 @@ interface Conversation {
   messages: Message[];
   createdAt: number;
   updatedAt: number;
+  summary?: string;
+  summarizedUpTo?: number; // Index of last summarized message
 }
 
 interface FileData {
@@ -133,6 +135,10 @@ const CONVERSATIONS_KEY = "steinberg_conversations";
 const ACTIVE_CONVERSATION_KEY = "steinberg_active_conversation";
 const MAX_CONVERSATIONS = 10;
 
+// Auto-summarization settings
+const SUMMARY_THRESHOLD = 12; // Summarize when conversation exceeds this many messages
+const RECENT_MESSAGES_COUNT = 6; // Keep this many recent messages unsummarized
+
 const getConversations = (): Conversation[] => {
   if (typeof window === "undefined") return [];
   const stored = localStorage.getItem(CONVERSATIONS_KEY);
@@ -186,6 +192,8 @@ export default function ChatInterface() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationIdState] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [currentSummary, setCurrentSummary] = useState<string | null>(null);
+  const [summarizedUpTo, setSummarizedUpTo] = useState<number>(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -227,6 +235,11 @@ export default function ChatInterface() {
       const activeConv = validConversations.find((c) => c.id === activeId);
       if (activeConv) {
         setMessages(activeConv.messages);
+        // Restore summary state if exists
+        if (activeConv.summary) {
+          setCurrentSummary(activeConv.summary);
+          setSummarizedUpTo(activeConv.summarizedUpTo || 0);
+        }
         return;
       }
     }
@@ -245,7 +258,13 @@ export default function ChatInterface() {
       setConversations((prev) => {
         const updated = prev.map((conv) =>
           conv.id === activeConversationId
-            ? { ...conv, messages, updatedAt: Date.now() }
+            ? {
+                ...conv,
+                messages,
+                updatedAt: Date.now(),
+                summary: currentSummary || conv.summary,
+                summarizedUpTo: summarizedUpTo || conv.summarizedUpTo,
+              }
             : conv
         );
         saveConversations(updated);
@@ -274,7 +293,7 @@ export default function ChatInterface() {
         });
       }
     }
-  }, [messages, activeConversationId, locale]);
+  }, [messages, activeConversationId, locale, currentSummary, summarizedUpTo]);
 
   // Auto-scroll within chat container only (not the whole page)
   useEffect(() => {
@@ -384,6 +403,8 @@ export default function ChatInterface() {
     setActiveConversationIdState(null);
     localStorage.removeItem(ACTIVE_CONVERSATION_KEY);
     setMessages([createWelcomeMessage()]);
+    setCurrentSummary(null);
+    setSummarizedUpTo(0);
     setShowSidebar(false);
     trackEvent("chat_reset");
   };
@@ -395,8 +416,36 @@ export default function ChatInterface() {
       setActiveConversationIdState(convId);
       setActiveConversationId(convId);
       setMessages(conv.messages);
+      // Load summary state
+      setCurrentSummary(conv.summary || null);
+      setSummarizedUpTo(conv.summarizedUpTo || 0);
       setShowSidebar(false);
       trackEvent("chat_switch_conversation");
+    }
+  };
+
+  // Generate summary for old messages
+  const summarizeOldMessages = async (messagesToSummarize: { role: string; content: string }[]): Promise<string | null> => {
+    try {
+      const response = await fetch("/api/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: messagesToSummarize.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          locale,
+        }),
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      return data.summary || null;
+    } catch (error) {
+      console.error("Summarization error:", error);
+      return null;
     }
   };
 
@@ -535,6 +584,53 @@ export default function ChatInterface() {
     setMessages((prev) => [...prev, assistantMessage]);
 
     try {
+      // Build history context with potential summarization
+      let historyContext: { role: string; content: string }[] = [];
+      let newSummary = currentSummary;
+      let newSummarizedUpTo = summarizedUpTo;
+
+      // Check if we need to summarize (conversation is getting long)
+      const totalMessages = messages.length;
+      const unsummarizedCount = totalMessages - summarizedUpTo;
+
+      if (unsummarizedCount > SUMMARY_THRESHOLD && totalMessages > SUMMARY_THRESHOLD) {
+        // Need to summarize older messages
+        const messagesToSummarize = messages.slice(
+          summarizedUpTo,
+          totalMessages - RECENT_MESSAGES_COUNT
+        );
+
+        if (messagesToSummarize.length > 0) {
+          // Combine old summary with new messages to summarize
+          const contextToSummarize = currentSummary
+            ? [{ role: "system" as const, content: `Résumé précédent: ${currentSummary}` }, ...messagesToSummarize]
+            : messagesToSummarize;
+
+          const summary = await summarizeOldMessages(contextToSummarize);
+          if (summary) {
+            newSummary = summary;
+            newSummarizedUpTo = totalMessages - RECENT_MESSAGES_COUNT;
+            setCurrentSummary(summary);
+            setSummarizedUpTo(newSummarizedUpTo);
+            trackEvent("chat_summarized", { messages_count: String(messagesToSummarize.length) });
+          }
+        }
+      }
+
+      // Build history: summary (if exists) + recent messages
+      if (newSummary) {
+        historyContext.push({
+          role: "system",
+          content: `[Résumé de la conversation précédente: ${newSummary}]`,
+        });
+      }
+
+      // Add recent messages (after summarized portion)
+      const recentMessages = messages.slice(Math.max(0, newSummarizedUpTo));
+      historyContext.push(
+        ...recentMessages.map((m) => ({ role: m.role, content: m.content }))
+      );
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -542,7 +638,7 @@ export default function ChatInterface() {
           message: input,
           files: currentFiles,
           locale,
-          history: messages.slice(-10), // Last 10 messages for context
+          history: historyContext.slice(-12), // Limit to prevent token overflow
           stream: true,
         }),
       });
