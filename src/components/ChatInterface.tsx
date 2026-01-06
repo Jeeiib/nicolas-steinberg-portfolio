@@ -116,7 +116,12 @@ export default function ChatInterface() {
         try {
           const history = JSON.parse(storedHistory) as Message[];
           if (history.length > 0) {
-            setMessages(history);
+            // Normalize any stored messages that may have curly quotes
+            const normalizedHistory = history.map((msg) => ({
+              ...msg,
+              content: normalizeText(msg.content),
+            }));
+            setMessages(normalizedHistory);
             return;
           }
         } catch {
