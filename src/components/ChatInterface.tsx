@@ -299,36 +299,31 @@ export default function ChatInterface() {
     }
   }, [messages, activeConversationId, locale, currentSummary, summarizedUpTo]);
 
-  // Auto-scroll within chat container
-  useEffect(() => {
-    if (messages.length > 1) {
-      const lastMessage = messages[messages.length - 1];
-      // Get all chat containers (normal + fullscreen if open)
+  // Helper function to scroll chat to bottom
+  const scrollChatToBottom = useCallback(() => {
+    setTimeout(() => {
       const chatContainers = document.querySelectorAll(".chat-messages");
+      chatContainers.forEach((container) => {
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      });
+    }, 50);
+  }, []);
 
-      if (lastMessage.role === "user") {
-        // User sent a message - scroll to bottom to see loading indicator
-        setTimeout(() => {
-          chatContainers.forEach((container) => {
-            container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
-          });
-        }, 100);
-      } else if (lastMessage.role === "assistant") {
-        // AI responded - scroll to start of the response
-        setTimeout(() => {
-          chatContainers.forEach((chatContainer) => {
-            const messageEl = chatContainer.querySelector(`[id="msg-${lastMessage.id}"]`);
-            if (messageEl) {
-              const containerRect = chatContainer.getBoundingClientRect();
-              const messageRect = messageEl.getBoundingClientRect();
-              const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
-              chatContainer.scrollTo({ top: scrollOffset, behavior: "smooth" });
-            }
-          });
-        }, 100);
-      }
-    }
-  }, [messages]);
+  // Helper function to scroll to a specific message
+  const scrollToMessage = useCallback((messageId: string) => {
+    setTimeout(() => {
+      const chatContainers = document.querySelectorAll(".chat-messages");
+      chatContainers.forEach((chatContainer) => {
+        const messageEl = chatContainer.querySelector(`[id="msg-${messageId}"]`);
+        if (messageEl) {
+          const containerRect = chatContainer.getBoundingClientRect();
+          const messageRect = messageEl.getBoundingClientRect();
+          const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
+          chatContainer.scrollTo({ top: scrollOffset, behavior: "smooth" });
+        }
+      });
+    }, 100);
+  }, []);
 
   // Calculate remaining quota
   const getMaxQuota = () => {
@@ -601,6 +596,9 @@ export default function ChatInterface() {
     setFiles([]);
     setIsLoading(true);
 
+    // Scroll to bottom immediately when user sends message
+    scrollChatToBottom();
+
     // Track message sent
     trackEvent("chat_message_sent", {
       has_files: String(currentFiles.length > 0),
@@ -687,6 +685,7 @@ export default function ChatInterface() {
       const decoder = new TextDecoder();
       let fullContent = "";
       let buffer = ""; // Buffer for incomplete SSE lines
+      let hasScrolledToResponse = false;
 
       if (reader) {
         while (true) {
@@ -718,6 +717,11 @@ export default function ChatInterface() {
                         : msg
                     )
                   );
+                  // Scroll to the assistant message on first content received
+                  if (!hasScrolledToResponse) {
+                    hasScrolledToResponse = true;
+                    scrollToMessage(assistantId);
+                  }
                 }
               } catch {
                 // Skip malformed JSON - might be empty line
