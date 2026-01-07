@@ -208,8 +208,8 @@ export default function ChatInterface() {
     id: "welcome",
     role: "assistant",
     content: locale === "en"
-      ? "Welcome. Excellence is not about stars, but about precision. I'm here to elevate your standards, whatever your reality.\n\nI can immediately:\n• 🛡️ Defuse a crisis or respond to a negative review.\n• 📝 Draft your procedures and sensitive emails.\n• 💡 Optimize your guests' experience.\n\nTo calibrate my analysis right now: What type of establishment do you work in? (Hotel, Restaurant, Independent, Franchise...)"
-      : "Bienvenue. L'excellence n'est pas une question d'étoiles, mais de précision. Je suis là pour élever vos standards, quelle que soit votre réalité.\n\nJe peux immédiatement :\n• 🛡️ Désamorcer une crise ou répondre à un avis négatif.\n• 📝 Rédiger vos procédures et emails délicats.\n• 💡 Optimiser l'expérience de vos clients.\n\nPour calibrer mon analyse dès maintenant : Dans quel type d'établissement travaillez-vous ? (Hôtel, Restaurant, Indépendant, Franchise...)",
+      ? "Welcome. Excellence is not about stars, but about precision. I'm here to elevate your standards, whatever your reality.\n\nI can immediately:\n\n- 🛡️ Defuse a crisis or respond to a negative review.\n- 📝 Draft your procedures and sensitive emails.\n- 💡 Optimize your guests' experience.\n\nTo calibrate my analysis right now: What type of establishment do you work in? (Hotel, Restaurant, Independent, Franchise...)"
+      : "Bienvenue. L'excellence n'est pas une question d'étoiles, mais de précision. Je suis là pour élever vos standards, quelle que soit votre réalité.\n\nJe peux immédiatement :\n\n- 🛡️ Désamorcer une crise ou répondre à un avis négatif.\n- 📝 Rédiger vos procédures et emails délicats.\n- 💡 Optimiser l'expérience de vos clients.\n\nPour calibrer mon analyse dès maintenant : Dans quel type d'établissement travaillez-vous ? (Hôtel, Restaurant, Indépendant, Franchise...)",
     timestamp: Date.now(),
   }), [locale]);
 
