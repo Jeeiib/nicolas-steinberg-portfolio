@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactMarkdown from "react-markdown";
 import { fadeInUp, staggerContainer, viewportSettings } from "@/lib/animations";
 import { useI18n } from "@/lib/i18n";
 
@@ -1087,7 +1088,9 @@ export default function ChatInterface() {
                       ))}
                     </div>
                   )}
-                  <div className="chat-content whitespace-pre-wrap">{msg.content}</div>
+                  <div className="chat-content prose prose-invert prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-headings:text-paper prose-headings:font-serif prose-strong:text-brass prose-strong:font-medium">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
                   {/* Message footer: timestamp + actions */}
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-brass/10">
                     {/* Timestamp */}

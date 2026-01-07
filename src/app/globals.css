@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   /* Palette - Old Money / Quiet Luxury */
@@ -345,4 +346,91 @@ body {
 /* Emerald color utilities for chat */
 .bg-emerald-900 {
   background-color: #003d33;
+}
+
+/* Markdown styling in chat */
+.chat-content.prose {
+  color: var(--paper);
+}
+
+.chat-content.prose strong {
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.chat-content.prose ul,
+.chat-content.prose ol {
+  padding-left: 1.25rem;
+}
+
+.chat-content.prose li {
+  color: var(--paper);
+}
+
+.chat-content.prose li::marker {
+  color: var(--brass);
+}
+
+.chat-content.prose h1,
+.chat-content.prose h2,
+.chat-content.prose h3,
+.chat-content.prose h4 {
+  color: var(--paper);
+  font-family: var(--font-playfair), Georgia, serif;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.chat-content.prose h1 { font-size: 1.25rem; }
+.chat-content.prose h2 { font-size: 1.125rem; }
+.chat-content.prose h3 { font-size: 1rem; }
+
+.chat-content.prose p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.chat-content.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 14px;
+}
+
+.chat-content.prose th,
+.chat-content.prose td {
+  border: 1px solid rgba(181, 166, 66, 0.3);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.chat-content.prose th {
+  background: rgba(181, 166, 66, 0.15);
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.chat-content.prose td {
+  color: var(--paper);
+}
+
+.chat-content.prose blockquote {
+  border-left: 3px solid var(--brass);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: var(--paper-muted);
+}
+
+.chat-content.prose code {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-size: 0.875em;
+  color: var(--brass);
+}
+
+.chat-content.prose hr {
+  border-color: rgba(181, 166, 66, 0.2);
+  margin: 1rem 0;
 }
