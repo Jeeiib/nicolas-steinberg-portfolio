@@ -299,29 +299,32 @@ export default function ChatInterface() {
     }
   }, [messages, activeConversationId, locale, currentSummary, summarizedUpTo]);
 
-  // Auto-scroll within chat container only (not the whole page)
+  // Auto-scroll within chat container
   useEffect(() => {
     if (messages.length > 1) {
       const lastMessage = messages[messages.length - 1];
-      const chatContainer = document.querySelector(".chat-messages");
+      // Get all chat containers (normal + fullscreen if open)
+      const chatContainers = document.querySelectorAll(".chat-messages");
 
       if (lastMessage.role === "user") {
         // User sent a message - scroll to bottom to see loading indicator
         setTimeout(() => {
-          if (chatContainer) {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
-          }
+          chatContainers.forEach((container) => {
+            container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+          });
         }, 100);
       } else if (lastMessage.role === "assistant") {
         // AI responded - scroll to start of the response
         setTimeout(() => {
-          const messageEl = document.getElementById(`msg-${lastMessage.id}`);
-          if (messageEl && chatContainer) {
-            const containerRect = chatContainer.getBoundingClientRect();
-            const messageRect = messageEl.getBoundingClientRect();
-            const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
-            chatContainer.scrollTo({ top: scrollOffset, behavior: "smooth" });
-          }
+          chatContainers.forEach((chatContainer) => {
+            const messageEl = chatContainer.querySelector(`[id="msg-${lastMessage.id}"]`);
+            if (messageEl) {
+              const containerRect = chatContainer.getBoundingClientRect();
+              const messageRect = messageEl.getBoundingClientRect();
+              const scrollOffset = messageRect.top - containerRect.top + chatContainer.scrollTop;
+              chatContainer.scrollTo({ top: scrollOffset, behavior: "smooth" });
+            }
+          });
         }, 100);
       }
     }
