@@ -197,6 +197,7 @@ export default function ChatInterface() {
   const [summarizedUpTo, setSummarizedUpTo] = useState<number>(0);
   const [editingConvId, setEditingConvId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -1018,6 +1019,16 @@ export default function ChatInterface() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </button>
+              {/* Fullscreen Button */}
+              <button
+                onClick={() => setIsFullscreen(true)}
+                className="p-2 rounded-lg hover:bg-paper/10 transition-colors"
+                title={locale === "en" ? "Fullscreen" : "Plein écran"}
+              >
+                <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
               {/* New Chat Button */}
               <button
                 onClick={resetChat}
@@ -1353,6 +1364,302 @@ export default function ChatInterface() {
               <button onClick={handleVipSubmit} className="w-full btn-ghost mt-4">
                 {locale === "en" ? "VALIDATE" : "VALIDER"}
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Modal */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/95 backdrop-blur-sm"
+            onClick={() => setIsFullscreen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="w-full h-full max-w-6xl max-h-[95vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Fullscreen Chat Container */}
+              <div className="chat-container flex-1 flex flex-col h-full">
+                {/* Fullscreen Header */}
+                <div className="chat-header">
+                  <div className="flex items-center gap-3">
+                    {conversations.length > 0 && (
+                      <button
+                        onClick={() => setShowSidebar(true)}
+                        className="p-2 -ml-2 rounded-lg hover:bg-paper/10 transition-colors"
+                        title={locale === "en" ? "Conversations" : "Conversations"}
+                      >
+                        <svg className="w-5 h-5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                      </button>
+                    )}
+                    <div className="w-10 h-10 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30">
+                      <span className="font-serif text-brass text-lg">S</span>
+                    </div>
+                    <div>
+                      <h3 className="text-paper font-medium text-sm">Steinberg Hospitality Analytics</h3>
+                      <span className="text-paper-muted text-xs">
+                        {locale === "en" ? "Strategic Analyst" : "Analyste Stratégique"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {quotaState.isVip && (
+                      <div className="flex items-center gap-2 text-brass text-xs">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span>VIP</span>
+                      </div>
+                    )}
+                    {/* Search in Fullscreen */}
+                    <button
+                      onClick={() => setShowSearch(!showSearch)}
+                      className={`p-2 rounded-lg hover:bg-paper/10 transition-colors ${showSearch ? "bg-paper/10" : ""}`}
+                      title={locale === "en" ? "Search" : "Rechercher"}
+                    >
+                      <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </button>
+                    {/* Export in Fullscreen */}
+                    <button
+                      onClick={() => exportConversation("txt")}
+                      disabled={messages.length <= 1}
+                      className="p-2 rounded-lg hover:bg-paper/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={locale === "en" ? "Export" : "Exporter"}
+                    >
+                      <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                    {/* New Chat in Fullscreen */}
+                    <button
+                      onClick={resetChat}
+                      disabled={isLoading || messages.length <= 1}
+                      className="p-2 rounded-lg hover:bg-paper/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={locale === "en" ? "New conversation" : "Nouvelle conversation"}
+                    >
+                      <svg className="w-4 h-4 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                    </button>
+                    {/* Close Fullscreen Button */}
+                    <button
+                      onClick={() => setIsFullscreen(false)}
+                      className="p-2 rounded-lg hover:bg-paper/10 transition-colors ml-2"
+                      title={locale === "en" ? "Exit fullscreen" : "Quitter le plein écran"}
+                    >
+                      <svg className="w-5 h-5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Search Bar in Fullscreen */}
+                {showSearch && (
+                  <div className="px-4 py-2 border-b border-brass/20">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={locale === "en" ? "Search in conversation..." : "Rechercher dans la conversation..."}
+                        className="w-full bg-obsidian/50 border border-brass/20 rounded-lg px-3 py-2 text-sm text-paper placeholder-paper-muted/50 focus:outline-none focus:border-brass/40"
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-paper-muted hover:text-paper"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Messages Area in Fullscreen */}
+                <div className="chat-messages flex-1" style={{ maxHeight: "none", minHeight: 0 }}>
+                  {filteredMessages
+                    .filter((msg) => !(isLoading && msg.role === "assistant" && msg.content === ""))
+                    .map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`chat-bubble ${msg.role === "user" ? "chat-bubble-user" : "chat-bubble-assistant"} group`}
+                    >
+                      {msg.role === "assistant" && (
+                        <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30 flex-shrink-0 mr-3">
+                          <span className="font-serif text-brass text-xs">S</span>
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        {msg.files && msg.files.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            {msg.files.map((f, i) => (
+                              <span key={i} className="text-xs bg-brass/20 text-brass px-2 py-1 rounded">
+                                {f.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div className="chat-content prose prose-invert prose-sm max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-headings:text-paper prose-headings:font-serif prose-strong:text-brass prose-strong:font-medium">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-brass/10">
+                          <span className="text-[10px] text-paper-muted/50">
+                            {msg.timestamp ? formatTimestamp(msg.timestamp, locale) : ""}
+                          </span>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => copyMessage(msg.content, msg.id)}
+                              className="p-1 rounded hover:bg-paper/10 transition-colors"
+                              title={locale === "en" ? "Copy" : "Copier"}
+                            >
+                              {copiedId === msg.id ? (
+                                <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : (
+                                <svg className="w-3.5 h-3.5 text-paper-muted hover:text-paper" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              )}
+                            </button>
+                            {msg.role === "assistant" && msg.id !== "welcome" && (
+                              <>
+                                <button
+                                  onClick={() => setFeedback(msg.id, "positive")}
+                                  className={`p-1 rounded hover:bg-paper/10 transition-colors ${msg.feedback === "positive" ? "text-green-400" : "text-paper-muted hover:text-paper"}`}
+                                >
+                                  <svg className="w-3.5 h-3.5" fill={msg.feedback === "positive" ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => setFeedback(msg.id, "negative")}
+                                  className={`p-1 rounded hover:bg-paper/10 transition-colors ${msg.feedback === "negative" ? "text-red-400" : "text-paper-muted hover:text-paper"}`}
+                                >
+                                  <svg className="w-3.5 h-3.5" fill={msg.feedback === "negative" ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018c.163 0 .326.02.485.06L17 4m-7 10v2a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {isLoading && messages.length > 0 && messages[messages.length - 1].content === "" && (
+                    <div className="chat-bubble chat-bubble-assistant">
+                      <div className="w-6 h-6 rounded-full bg-emerald-900 flex items-center justify-center border border-brass/30 flex-shrink-0 mr-3">
+                        <span className="font-serif text-brass text-xs">S</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-2 h-2 bg-brass/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </div>
+                        <span className="text-xs text-paper-muted/50">
+                          {locale === "en" ? "Analyzing..." : "Analyse en cours..."}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* File Preview in Fullscreen */}
+                {files.length > 0 && (
+                  <div className="px-4 py-2 border-t border-brass/20 flex flex-wrap gap-2">
+                    {files.map((file, index) => (
+                      <div key={index} className="flex items-center gap-2 bg-brass/10 text-brass text-xs px-3 py-1.5 rounded">
+                        <span className="max-w-[150px] truncate">{file.name}</span>
+                        <button onClick={() => removeFile(index)} className="hover:text-paper transition-colors">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Input Area in Fullscreen */}
+                <div className="chat-input-area">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-brass/60 hover:text-brass transition-colors p-2"
+                    title={locale === "en" ? "Attach file" : "Joindre un fichier"}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                  </button>
+                  <textarea
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
+                    placeholder={locale === "en"
+                      ? "Describe a situation, upload a screenshot or an audit..."
+                      : "Décrivez une situation, joignez une capture d'écran ou un audit..."}
+                    className="chat-input"
+                    rows={2}
+                    style={{ resize: "none", overflow: "hidden", minHeight: "44px", maxHeight: "120px" }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = "auto";
+                      target.style.height = Math.min(target.scrollHeight, 120) + "px";
+                    }}
+                  />
+                  <button
+                    onClick={sendMessage}
+                    disabled={isLoading || (!input.trim() && files.length === 0)}
+                    className="text-brass hover:text-paper disabled:text-paper-muted/30 transition-colors p-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Footer in Fullscreen */}
+                {!quotaState.isVip && (
+                  <div className="chat-footer">
+                    <span className="text-paper-muted/60 text-xs">
+                      {remaining === Infinity
+                        ? ""
+                        : `${Math.max(0, QUOTA_LINKEDIN - quotaState.count)}/${QUOTA_LINKEDIN} ${locale === "en" ? "analyses remaining" : "analyses restantes"}`}
+                    </span>
+                    <button
+                      onClick={() => setShowVipModal(true)}
+                      className="text-paper-muted/40 hover:text-brass text-xs transition-colors"
+                    >
+                      {locale === "en" ? "Partner Access" : "Accès Partenaire"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
