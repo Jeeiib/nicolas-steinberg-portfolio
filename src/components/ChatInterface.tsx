@@ -198,6 +198,15 @@ export default function ChatInterface() {
   const [editingConvId, setEditingConvId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -844,7 +853,9 @@ export default function ChatInterface() {
           variants={fadeInUp}
           className="chat-container relative overflow-hidden"
           style={{
-            maxHeight: isExpanded ? "950px" : "680px",
+            maxHeight: isMobile
+              ? (isExpanded ? "85vh" : "520px")
+              : (isExpanded ? "950px" : "680px"),
             transition: "max-height 0.5s ease-out",
           }}
         >
@@ -1184,16 +1195,16 @@ export default function ChatInterface() {
 
           {/* Quick Replies - Show only when there's just the welcome message */}
           {messages.length === 1 && messages[0].id === "welcome" && !isLoading && (
-            <div className="px-4 py-3 border-t border-brass/20">
-              <p className="text-xs text-paper-muted/60 mb-2">
+            <div className="px-4 py-2 md:py-3 border-t border-brass/20">
+              <p className="text-xs text-paper-muted/60 mb-2 hidden md:block">
                 {locale === "en" ? "Quick suggestions:" : "Suggestions rapides :"}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 md:flex-wrap scrollbar-hide">
                 {QUICK_REPLIES[locale === "en" ? "en" : "fr"].map((reply, index) => (
                   <button
                     key={index}
                     onClick={() => handleQuickReply(reply)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-brass/30 text-paper-muted hover:text-paper hover:border-brass/50 hover:bg-brass/10 transition-all"
+                    className="text-xs px-3 py-1.5 rounded-full border border-brass/30 text-paper-muted hover:text-paper hover:border-brass/50 hover:bg-brass/10 transition-all whitespace-nowrap flex-shrink-0"
                   >
                     {reply}
                   </button>
