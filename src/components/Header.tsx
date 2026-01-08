@@ -106,7 +106,7 @@ export default function Header() {
         </a>
 
         {/* Desktop Navigation */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => {
             const isAnalytics = item.href === "#steinberg-hospitality-analytics";
             return (
@@ -145,7 +145,7 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          className="lg:hidden flex flex-col gap-1.5 p-2"
           aria-label={t.nav.menu}
         >
           <span
@@ -174,7 +174,7 @@ export default function Header() {
           opacity: isMobileMenuOpen ? 1 : 0,
         }}
         transition={{ duration: 0.3 }}
-        className="md:hidden overflow-hidden bg-obsidian/95 backdrop-blur-xl border-b border-brass-light"
+        className="lg:hidden overflow-hidden bg-obsidian/95 backdrop-blur-xl border-b border-brass-light"
       >
         <ul className="px-6 py-6 space-y-4">
           {navItems.map((item) => {
